@@ -1,30 +1,3 @@
-// Audio Sounds for Game
-var sounds = {
-    bounce: {
-        audio: new Audio('sounds/341708__projectsu012__bouncing-3.wav'),
-        mediaElementSource: null
-    }
-};
-var audioCtx;
-
-if (window.AudioContext) {
-    audioCtx = new window.AudioContext();
-
-    for (var i = 0; i < sounds.length; i++) {
-        sounds[i].mediaElementSource = audioCtx.createMediaElementSource(sounds[i].audio);
-    }
-}
-
-function playSound(sound) {
-    sound = sounds[sound];
-    console.log("play Sound: ", sound);
-    sound.audio.currentTime = 0;
-    sound.audio.volume = 0.01;
-    sound.audio.play();
-    //if (audioCtx) {
-    //  sound.mediaElementSource.connect(audioCtx.destination);
-    //}
-}
 // Track the game state.
 var gameState = {
     lives: 3,
@@ -49,10 +22,12 @@ var gameState = {
     }
 };
 
+//Global Variables
 var soundOn = true;
 var newLife = false;
 var highScore = 0;
 
+//Controls Animation drawings
 var animation = {
     suspend : false,
     bounce : {
@@ -79,6 +54,55 @@ var offsetY = (canvasHeight/6)/2;
 //Rows and Columns
 var ROW = [-25, 60, 145, 230, 315, 400];
 var COL = [0, 100, 200, 300, 400];
+
+// Audio Sounds for Game
+var sounds = {
+    bounce : {
+        audio: new Audio('sounds/341708__projectsu012__bouncing-3.wav'),
+        mediaElementSource: null
+    },
+    die : {
+        audio: new Audio('sounds/319998__manuts__death-5.wav'),
+        mediaElementSource: null
+    },
+    gameover : {
+        audio: new Audio('sounds/76376__spazzo-1493__game-over.wav'),
+        mediaElementSource: null
+    },
+    levelup : {
+        audio: new Audio('sounds/320655__rhodesmas__level-up-01.wav'),
+        mediaElementSource: null
+    },
+    newlife : {
+        audio: new Audio('sounds/341695__projectsu012__coins-1.wav'),
+        mediaElementSource: null
+    },
+    move : {
+        audio: new Audio('sounds/194081__potentjello__woosh-noise-1.wav'),
+        mediaElementSource: null
+    }
+};
+
+var audioCtx;
+
+//Initialize sounds if sound is supported
+if (window.AudioContext) {
+    audioCtx = new window.AudioContext();
+
+    for (var i = 0; i < sounds.length; i++) {
+        sounds[i].mediaElementSource = audioCtx.createMediaElementSource(sounds[i].audio);
+    }
+}
+
+function playSound(sound) {
+    if (soundOn === false)  //abort if player has muted sounds
+        return;
+
+    sound = sounds[sound];
+    sound.audio.currentTime = 0.05;
+    sound.audio.volume = 0.05;
+    sound.audio.play();
+}
 
 var updateDifficulty = function() {
     var EnemyCap = 7;
@@ -160,21 +184,15 @@ Enemy.prototype.update = function(dt) {
     if (this.x > canvasWidth)
     {
         this.speed = this.randomSpeed();
-        //console.log(this.speed);
         this.y = ROW[Math.floor(Math.random()*3) + 1];
         this.x = -100;
     }
-    //console.log(player.x, this.x);
     if ((this.x > (player.x - 45)) && (this.x < (player.x + 20)) &&
         (this.y > (player.y - 20)) && (this.y < (player.y + 20)) &&
         animation.suspend === false)
     {
-        animation.suspend = true;
-        animation.die.animate = true;
         player.handleCollision();
-        console.log("you've crashed");
     }
-    //console.log(this.x, this.y);
 };
 
 // Draw the enemy on the screen, required method for game
@@ -197,6 +215,7 @@ var Player = function() {
 Player.prototype.update = function(dt) {
     if (this.y < -20 && animation.suspend === false)
     {
+        playSound('levelup');
         animation.win.animate = true;
         animation.suspend = true;
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -206,6 +225,7 @@ Player.prototype.update = function(dt) {
         gameState.level = this.level;
         if ((this.level%25===0 || this.score%5000===0) && newLife === false)
         {
+            playSound('newlife');
             newLife = true;
             this.lives++;
             gameState.lives = this.lives;
@@ -274,8 +294,12 @@ Player.prototype.reset = function() {
 };
 
 Player.prototype.handleCollision = function() {
+
     if (this.lives > 0)
     {
+        animation.suspend = true;
+        animation.die.animate = true;
+        playSound('die');
         this.lives -= 1;
         gameState.lives = this.lives;
     }
@@ -367,6 +391,8 @@ Player.prototype.handleInput = function(key) {
     console.log(key, this.x, this.y);
     var movX = canvasWidth/5;
     var movY = (canvasHeight - 100)/6;
+
+    playSound('move');
     switch (key)
     {
         case "left":
@@ -505,6 +531,7 @@ leftSideBar.addEventListener('click',function(loc) {
 });
 
 var gameOver = function() {
+    playSound('gameover');
     //TODO: Show High Score...
     if (gameState.score > highScore)
     {
