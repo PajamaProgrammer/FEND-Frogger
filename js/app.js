@@ -24,12 +24,19 @@ var gameState = {
 
 var soundOn = true;
 var newLife = false;
-var isBounce = false;
 
-var animate = {
+var animation = {
+    suspend : false,
     bounce : {
-        isBounceUp : false,
-        isBounceDown : false
+        animate : false,
+        isUp : false,
+        isDown : false
+    },
+    die : {
+        animate : false
+    },
+    win : {
+        animage : false
     }
 }
 
@@ -48,7 +55,6 @@ var COL = [0, 100, 200, 300, 400];
 var updateDifficulty = function() {
     var EnemyCap = 7;
     var RockCap = 3;
-    console.log(Math.floor(Math.random()*2) === 0 ? true : false);
     if (gameState.level===gameState.newEnemyLevel && gameState.numEnemies < EnemyCap)    //Reached a high level, spawn new enemy
     {
         console.log("new Enemy");
@@ -98,9 +104,13 @@ Rock.prototype.render = function() {
 
 Rock.prototype.update = function(dt) {
     if ((this.x > (player.x - 20)) && (this.x < (player.x + 20)) &&
-        (this.y > (player.y - 20)) && (this.y < (player.y + 20)) && this.appear)
+        (this.y > (player.y - 20)) && (this.y < (player.y + 20)) &&
+        this.appear && animation.bounce.animate === false)
     {
-        player.handleBounce(dt);
+        animation.suspend = true;
+        animation.bounce.animate = true;
+        animation.bounce.isUp = true;
+        player.handleBounce();
     }
 }
 
@@ -131,8 +141,11 @@ Enemy.prototype.update = function(dt) {
     }
     //console.log(player.x, this.x);
     if ((this.x > (player.x - 45)) && (this.x < (player.x + 20)) &&
-        (this.y > (player.y - 20)) && (this.y < (player.y + 20)))
+        (this.y > (player.y - 20)) && (this.y < (player.y + 20)) &&
+        animation.suspend === false)
     {
+        animation.suspend = true;
+        animation.die.animate = true;
         player.handleCollision();
         console.log("you've crashed");
     }
@@ -150,19 +163,16 @@ var Player = function() {
     this.score = gameState.original.score;
     this.lives = gameState.original.lives;
     this.level = gameState.original.level;
-    this.col = 2;
-    this.row = 4;
-    this.x = COL[this.col];
-    this.y = ROW[this.row];
+    this.reset();
     this.sprite = 'images/char-boy.png';
-    this.scale = 1;
     //this.newGame();
-    //this.reset();
 };
 
 Player.prototype.update = function(dt) {
-    if (this.y < -20)
+    if (this.y < -20 && animation.suspend === false)
     {
+        animation.win.animate = true;
+        animation.suspend = true;
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         this.score += 100;
         gameState.score = this.score;
@@ -177,8 +187,55 @@ Player.prototype.update = function(dt) {
         else if (newLife === true)
             newLife = false;
 
-        this.reset();
+        //this.reset();
         updateDifficulty();
+    }
+
+    if (animation.bounce.animate === true)
+    {
+        if (animation.bounce.isUp === true)
+            this.scale += 0.1;
+
+        if (this.scale >= 1.5)
+        {
+            animation.bounce.isUp = false;
+            animation.bounce.isDown = true;
+        }
+
+        if (animation.bounce.isDown === true)
+            this.scale -= 0.1;
+
+        if (this.scale <= 1)
+        {
+            animation.bounce.isDown = false;
+            animation.bounce.animate = false;
+            animation.suspend = false;
+            this.scale = 1;
+        }
+    }
+
+    if (animation.die.animate === true)
+    {
+        this.scale -= 0.1;
+
+        if (this.scale < 0)
+        {
+            animation.suspend = false;
+            animation.die.animate = false;
+            this.reset();
+        }
+    }
+
+    if (animation.win.animate === true)
+    {
+        this.scale -= 0.1;
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        if (this.scale < 0)
+        {
+            animation.suspend = false;
+            animation.win.animate = false;
+            this.reset();
+        }
     }
 };
 
@@ -196,29 +253,84 @@ Player.prototype.handleCollision = function() {
         this.lives -= 1;
         gameState.lives = this.lives;
     }
-    this.reset();
+    else
+        gameOver();
 };
 
-Player.prototype.handleBounce = function(dt) {
-    var dir = Math.floor(Math.random()*8); //eight possible directions to bounce in
-    if (this.scale < 1.5)
-        this.scale += 1.1*dt;
-    console.log("BOING!", this.scale);
-    switch (dir)
+Player.prototype.handleBounce = function() {
+    var dir;
+
+    switch (this.dir)
     {
-        case 0: //bounce down
+        case "up": //approach rock while going up
+            this.row++;
+            this.y = ROW[this.row];
+            dir = Math.floor(Math.random()*3);
+            if (dir === 1 && this.col < 4) //bounce right
+            {
+                this.col++;
+                this.x = COL[this.col];
+            }
+            if (dir === 2 && this.col > 0) //bounce left
+            {
+                this.col--;
+                this.x = COL[this.col];
+            }
 
             break;
-        case 1:
-        break;
-        default:
 
+        case "left":
+            this.col++;
+            this.x = COL[this.col];
+            dir = Math.floor(Math.random()*3);
+            if (dir === 1) //bounce up
+            {
+                this.row--;
+                this.y = ROW[this.row];
+            }
+            if (dir === 2) //bounce down
+            {
+                this.row++;
+                this.y = ROW[this.row];
+            }
+
+            break;
+        case "right":
+            this.col--;
+            this.x = COL[this.col];
+            dir = Math.floor(Math.random()*3);
+            if (dir === 1) //bounce up
+            {
+                this.row--;
+                this.y = ROW[this.row];
+            }
+            if (dir === 2) //bounce down
+            {
+                this.row++;
+                this.y = ROW[this.row];
+            }
+            break;
+
+        case "down":
+            this.row--;
+            this.y = ROW[this.row];
+            dir = Math.floor(Math.random()*3);
+            if (dir === 1 && this.col < 4) //bounce right
+            {
+                this.col++;
+                this.x = COL[this.col];
+            }
+            if (dir === 2 && this.col > 0) //bounce left
+            {
+                this.col--;
+                this.x = COL[this.col];
+            }
+            break;
     }
-    //this.reset();
 };
 
 Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y, 101*this.scale, 171*this.scale);
+    ctx.drawImage(Resources.get(this.sprite), this.x + (50 - 50*this.scale), this.y + (85 - 85*this.scale), 101*this.scale, 171*this.scale);
 };
 
 Player.prototype.handleInput = function(key) {
@@ -228,9 +340,10 @@ Player.prototype.handleInput = function(key) {
     switch (key)
     {
         case "left":
-            console.log("You pressed left");
+            console.log("You pressed left", this.scale);
             if (this.x - movX > -5)
             {
+                this.dir = "left";
                 this.col--;
                 this.x = COL[this.col];
             }
@@ -239,6 +352,7 @@ Player.prototype.handleInput = function(key) {
             console.log("You pressed right");
             if (this.x + movX < 410)
             {
+                this.dir = "right";
                 this.col++;
                 this.x = COL[this.col];
             }
@@ -247,6 +361,7 @@ Player.prototype.handleInput = function(key) {
             console.log("You pressed up");
             if (this.y - movY > -50)
             {
+                this.dir = "up";
                 this.row--;
                 this.y = ROW[this.row];
             }
@@ -255,6 +370,7 @@ Player.prototype.handleInput = function(key) {
             console.log("You pressed down");
             if (this.y + movY < 400)
             {
+                this.dir = "down";
                 this.row++;
                 this.y = ROW[this.row];
             }
@@ -283,9 +399,6 @@ document.addEventListener('keyup', function(e) {
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
-//global.drawScore = drawScore;
-//global.drawLives = drawLives;
-//global.drawLevel = drawLevel;
 
 /**
 * Draws the level text on the canvas.
@@ -357,7 +470,12 @@ leftSideBar.addEventListener('click',function(loc) {
   //player.handleInputMouse(x,y);
 });
 
+var gameOver = function() {
+    //TODO: Show High Score...
+    allEnemies.length = 0;
+    allRocks.length = 0;
 
+};
 /*
 document.addEventListener('click',function(loc) {
   var x = loc.pageX;
