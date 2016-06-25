@@ -1,3 +1,30 @@
+// Audio Sounds for Game
+var sounds = {
+    bounce: {
+        audio: new Audio('sounds/341708__projectsu012__bouncing-3.wav'),
+        mediaElementSource: null
+    }
+};
+var audioCtx;
+
+if (window.AudioContext) {
+    audioCtx = new window.AudioContext();
+
+    for (var i = 0; i < sounds.length; i++) {
+        sounds[i].mediaElementSource = audioCtx.createMediaElementSource(sounds[i].audio);
+    }
+}
+
+function playSound(sound) {
+    sound = sounds[sound];
+    console.log("play Sound: ", sound);
+    sound.audio.currentTime = 0;
+    sound.audio.volume = 0.01;
+    sound.audio.play();
+    //if (audioCtx) {
+    //  sound.mediaElementSource.connect(audioCtx.destination);
+    //}
+}
 // Track the game state.
 var gameState = {
     lives: 3,
@@ -108,9 +135,6 @@ Rock.prototype.update = function(dt) {
         (this.y > (player.y - 20)) && (this.y < (player.y + 20)) &&
         this.appear && animation.bounce.animate === false)
     {
-        animation.suspend = true;
-        animation.bounce.animate = true;
-        animation.bounce.isUp = true;
         player.handleBounce();
     }
 }
@@ -260,6 +284,10 @@ Player.prototype.handleCollision = function() {
 };
 
 Player.prototype.handleBounce = function() {
+    animation.suspend = true;
+    animation.bounce.animate = true;
+    animation.bounce.isUp = true;
+    playSound('bounce');
     var dir;
 
     switch (this.dir)
