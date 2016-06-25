@@ -24,6 +24,7 @@ var gameState = {
 
 var soundOn = true;
 var newLife = false;
+var highScore = 0;
 
 var animation = {
     suspend : false,
@@ -166,6 +167,7 @@ var Player = function() {
     this.reset();
     this.sprite = 'images/char-boy.png';
     //this.newGame();
+    //newGame();
 };
 
 Player.prototype.update = function(dt) {
@@ -380,11 +382,15 @@ Player.prototype.handleInput = function(key) {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var allEnemies = [new Enemy(), new Enemy(), new Enemy()];
-var player = new Player();
-var allRocks = [];
+var player;
+var allEnemies, allRocks, allCollectibles;
 
-
+function newGame () {
+    player = new Player();
+    allRocks = [];
+    allCollectibles = [];
+    allEnemies = [new Enemy(), new Enemy(), new Enemy()];
+};
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -472,9 +478,26 @@ leftSideBar.addEventListener('click',function(loc) {
 
 var gameOver = function() {
     //TODO: Show High Score...
+    if (gameState.score > highScore)
+    {
+        highScore = gameState.score;
+        console.log("New High Score: ", highScore);
+    }
+    //delete all Enemies and Rocks
     allEnemies.length = 0;
     allRocks.length = 0;
 
+    gameState.lives = gameState.original.lives;
+    gameState.level = gameState.original.level;
+    gameState.score = gameState.original.score;
+    gameState.numEnemies = gameState.original.numEnemies;
+    gameState.newEnemyLevel = gameState.original.newEnemyLevel;
+    gameState.enemySpeed = gameState.original.enemySpeed;
+    gameState.numCollectables = gameState.original.numCollectables;
+    gameState.numRocks = gameState.original.numRocks;
+    gameState.newRockLevel = gameState.original.newRockLevel;
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    newGame();
 };
 /*
 document.addEventListener('click',function(loc) {
