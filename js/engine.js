@@ -98,7 +98,11 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
+    }
+
+    function checkCollisions() {
+
     }
 
     /* This is called by the update function and loops through all of the
@@ -113,6 +117,9 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+        allRocks.forEach(function(rock) {
+            rock.update(dt);
+        });
     }
 
     /* This function initially draws the "game level", it will then call
@@ -181,7 +188,9 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.render();
         });
-
+        allRocks.forEach(function(rock) {
+            rock.render();
+        });
         player.render();
     }
 
