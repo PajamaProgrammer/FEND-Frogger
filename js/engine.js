@@ -23,11 +23,29 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
+
+        //Right and Left SideBar Canvas
+        rightSideBar = doc.createElement('canvas'),
+        rightSideBarCtx = rightSideBar.getContext('2d'),
+        leftSideBar = doc.createElement('canvas'),
+        leftSideBarCtx = leftSideBar.getContext('2d'),
         lastTime;
+
+    canvas.setAttribute("id", "main");
+    rightSideBar.setAttribute("id", "right");
+    leftSideBar.setAttribute("id", "left");
+
+    leftSideBar.width = 50;
+    leftSideBar.height = 606;
+    doc.body.appendChild(leftSideBar);
 
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
+
+    rightSideBar.width = 50;
+    rightSideBar.height = canvas.height;
+    doc.body.appendChild(rightSideBar);
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -136,6 +154,19 @@ var Engine = (function(global) {
             }
         }
 
+        /**********************
+        * BEGIN My Code
+        **********************/
+        // Draw the score.
+        drawScore();
+        drawLevel();
+        drawLives();
+        drawSound()
+
+        /**********************
+        * END My Code
+        **********************/
+
         renderEntities();
     }
 
@@ -171,7 +202,19 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png',
+        'images/Gem Blue.png',
+        'images/Gem Green.png',
+        'images/Gem Orange.png',
+        'images/Heart.png',
+        'images/Star.png',
+        'images/Rock.png',
+        'images/sound-on.png',
+        'images/sound-off.png'
     ]);
     Resources.onReady(init);
 
@@ -180,4 +223,6 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
+    global.rightSideBarCtx = rightSideBarCtx;
+    global.leftSideBarCtx = leftSideBarCtx;
 })(this);
