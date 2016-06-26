@@ -29,6 +29,7 @@ var gameState = {
     numCollectables: 3,
     numRocks: 0,
     newRockLevel: 5,
+    maxTime: 300,
     original: {
       lives: 3,
       level: 1,
@@ -38,7 +39,8 @@ var gameState = {
       enemySpeed: [25, 200],
       numCollectables: 3,
       numRocks: 0,
-      newRockLevel: 5
+      newRockLevel: 5,
+      maxTime: 300
     }
 };
 
@@ -71,32 +73,28 @@ var collect = {
 // Audio Sounds for Game
 var sounds = {
     bounce : {
-        audio: new Audio('sounds/341708__projectsu012__bouncing-3.wav'),
-        mediaElementSource: null
+        audio: new Audio('sounds/341708__projectsu012__bouncing-3.wav')
     },
     die : {
-        audio: new Audio('sounds/319998__manuts__death-5.wav'),
-        mediaElementSource: null
+        audio: new Audio('sounds/319998__manuts__death-5.wav')
     },
     gameover : {
-        audio: new Audio('sounds/76376__spazzo-1493__game-over.wav'),
-        mediaElementSource: null
+        audio: new Audio('sounds/76376__spazzo-1493__game-over.wav')
     },
     levelup : {
-        audio: new Audio('sounds/320655__rhodesmas__level-up-01.wav'),
-        mediaElementSource: null
+        audio: new Audio('sounds/320655__rhodesmas__level-up-01.wav')
     },
     newlife : {
-        audio: new Audio('sounds/341695__projectsu012__coins-1.wav'),
-        mediaElementSource: null
+        audio: new Audio('sounds/341695__projectsu012__coins-1.wav')
     },
     move : {
-        audio: new Audio('sounds/194081__potentjello__woosh-noise-1.wav'),
-        mediaElementSource: null
+        audio: new Audio('sounds/194081__potentjello__woosh-noise-1.wav')
     },
     collect : {
-        audio: new Audio('sounds/194439__high-festiva__gem-ping.wav'),
-        mediaElementSource: null
+        audio: new Audio('sounds/194439__high-festiva__gem-ping.wav')
+    },
+    timeup : {
+        audio: new Audio('sounds/157218__adamweeden__video-game-die-or-lose-life.wav')
     }
 };
 
@@ -125,7 +123,7 @@ var updateLevel = function() {
     //Reached a high level, spawn new enemy
     if (gameState.level===gameState.newEnemyLevel && gameState.numEnemies < EnemyCap)
     {
-        console.log("new Enemy");
+        //console.log("new Enemy");
         gameState.numEnemies++;
         gameState.newEnemyLevel += gameState.newEnemyLevel*2;
         allEnemies.push(new Enemy());
@@ -138,7 +136,7 @@ var updateLevel = function() {
     //Reached a high level, spawn new rock and a new collectible
     if (gameState.level===gameState.newRockLevel && gameState.numRocks < RockCap)
     {
-        console.log("new rock");
+        //console.log("new rock");
         gameState.numRocks++;
         gameState.newRockLevel += gameState.newRockLevel*2;
         allRocks.push(new Rock());
@@ -154,7 +152,9 @@ var updateLevel = function() {
     allCollectibles.forEach(function(Collectible) {
         Collectible.reset();
     });
-}
+
+    gameTimer.reset();
+};
 
 /*
 --------------------- Function ---------------------
@@ -194,6 +194,7 @@ var gameOver = function() {
     gameState.numCollectables = gameState.original.numCollectables;
     gameState.numRocks = gameState.original.numRocks;
     gameState.newRockLevel = gameState.original.newRockLevel;
+    gameState.maxTime = gameState.original.maxTime;
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     newGame();
 };
@@ -407,8 +408,9 @@ Player.prototype.reset = function() {
     this.scale = 1;
 };
 
-//Update player movements with respect to dt
+//Update player movements
 Player.prototype.update = function(dt) {
+    //ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     //Reached the water, Level up
     if (this.y < -20 && animation.suspend === false)
@@ -421,7 +423,7 @@ Player.prototype.update = function(dt) {
         animation.win.isUp = true;
 
         //clear canvas in order to update score/level
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        //ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         this.score += 100;
         gameState.score = this.score;
         this.level += 1;
@@ -481,7 +483,7 @@ Player.prototype.update = function(dt) {
 
     if (animation.win.animate === true)
     {
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        //ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
         if (animation.win.isUp === true)
         {
@@ -507,6 +509,20 @@ Player.prototype.update = function(dt) {
     }
 };
 
+//Times up for the player
+Player.prototype.handleTimesUp = function() {
+    if (this.lives > 0)
+    {
+        animation.suspend = true;       //suspend other interactions
+        animation.die.animate = true;   //trigger die animations
+        playSound('timeup');
+        this.lives -= 1;
+        gameState.lives = this.lives;
+    }
+    else
+        gameOver();
+}
+
 //Player has crashed into an Enemy
 Player.prototype.handleCollision = function() {
 
@@ -522,10 +538,11 @@ Player.prototype.handleCollision = function() {
         gameOver();
 };
 
+//Player has picked up a collectible
 Player.prototype.handleCollectible = function(type) {
 
     //clear canvas in order to update score/level
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    //ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     switch (type)
     {
@@ -554,7 +571,7 @@ Player.prototype.handleCollectible = function(type) {
     gameState.lives = this.lives;
 };
 
-//Player has bounced into a rock
+//Player has bounced off a rock
 Player.prototype.handleBounce = function() {
     animation.suspend = true;
     animation.bounce.animate = true;
@@ -688,6 +705,65 @@ Player.prototype.handleInput = function(key) {
     console.log(this.x, this.y);
 };
 
+
+var Timer = function(){
+    this.reset();
+};
+
+Timer.prototype.reset = function() {
+    this.now = Date.now();
+    this.maxTime = gameState.maxTime;
+    this.min = Math.floor(this.maxTime/60);
+    this.sec = Math.floor(this.maxTime%60);
+    this.color = 'black';
+    //console.log(this.min, this.sec, this.now);
+}
+
+Timer.prototype.update = function() {
+
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    this.last = this.now;
+    this.now = Date.now();
+    this.dt = (this.now - this.last)/1000;
+    this.maxTime -= this.dt;
+    this.min = Math.floor(this.maxTime/60);
+    this.sec = Math.floor(this.maxTime%60);
+
+    if (this.maxTime < 60)
+    {
+        this.color = 'red';
+    }
+    if (this.maxTime < 0)
+    {
+        player.handleTimesUp();
+        this.reset();
+    }
+}
+
+Timer.prototype.render = function() {
+    ctx.save();
+    ctx.font = '20px serif';
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = this.color;
+    ctx.fillText('Timer ' + this, 2.5, 45);
+    ctx.restore();
+}
+
+Timer.prototype.toString = function() {
+    var time = this.min + ':';
+
+    if (this.sec < 10)
+        time += '0' + this.sec;
+    else
+        time += this.sec;
+
+    return time;
+}
+
+//Timer.prototype.constructor
+var gameTimer = new Timer();
+
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function(e) {
@@ -704,6 +780,17 @@ document.addEventListener('keyup', function(e) {
 
 /*
 --------------------- Canvas - Additional information ---------------------
+*/
+/*
+//Draws the timer text on the canvas - top left
+function drawTimer() {
+    ctx.save();
+    ctx.font = '20px serif';
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('Timer ' + gameTimer, 2.5, 45);
+    ctx.restore();
+}
 */
 //Draws the level text on the canvas - top middle
 function drawLevel() {
