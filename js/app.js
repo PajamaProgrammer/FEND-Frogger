@@ -6,7 +6,6 @@
 var soundOn = true;     //Mutes Sound effects if set to false
 var newLife = false;    //toggle when player is awarded an extra life
 //TODO Add newLife Functinality to the gameState and get rid of global variable...
-var highScore = 0;
 
 //Entities
 var player, allEnemies, allRocks, allCollectibles;
@@ -41,6 +40,7 @@ var gameState = {
     newRockLevel: 5,
     maxTime: 301,
     playerSprite: sprites[0],
+    highScore: 0,
     original: {
       lives: 3,
       level: 1,
@@ -220,10 +220,10 @@ Game Over - records the high score and resets the gameState
 var gameOver = function() {
     playSound('gameover');
     //TODO: Show High Score...
-    if (gameState.score > highScore)
+    if (gameState.score > gameState.highScore)
     {
-        highScore = gameState.score;
-        console.log("New High Score: ", highScore);
+        gameState.highScore = gameState.score;
+        console.log("New High Score: ", gameState.highScore);
     }
     //delete all Enemies and Rocks
     allEnemies.length = 0;
@@ -845,6 +845,7 @@ function drawLevel() {
     ctx.font = '20px serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = 'black';
     ctx.fillText('Level - ' + player.level, 101 * 2.5, 45);
     ctx.restore();
 }
@@ -855,6 +856,7 @@ function drawScore() {
     ctx.font = '24px serif';
     ctx.textAlign = 'end';  // start, end, left, right, center
     ctx.textBaseline = 'alphabetic';  // top, hanging, middle, alphabetic, ideographic, bottom
+    ctx.fillStyle = 'black';
     ctx.fillText('Score: ' + player.score, 101 * 5, 45);
     ctx.restore();
 }
@@ -914,12 +916,13 @@ leftSideBar.addEventListener('mousemove',function(loc) {
         document.body.style.cursor = "pointer";
 });
 
-
+/*
 document.addEventListener('click',function(loc) {
   var x = loc.pageX;
   var y = loc.pageY;
 
   console.log(x,y);
   //player.handleInputMouse(x,y);
-})
+});
+*/
 
