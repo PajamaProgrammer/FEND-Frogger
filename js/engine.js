@@ -117,7 +117,11 @@ var Engine = (function(global) {
             rock.update(dt);
         });
 
-        player.update();
+        allCollectibles.forEach(function(collectible) {
+            collectible.update(dt);
+        })
+
+        player.update(dt);
 
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
@@ -187,12 +191,16 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
+        allCollectibles.forEach(function(collectible) {
+            collectible.render();
+        });
         allEnemies.forEach(function(enemy) {
             enemy.render();
         });
         allRocks.forEach(function(rock) {
             rock.render();
         });
+
         player.render();
     }
 
@@ -222,6 +230,7 @@ var Engine = (function(global) {
         'images/Gem Green.png',
         'images/Gem Orange.png',
         'images/Heart.png',
+        'images/Key.png',
         'images/Star.png',
         'images/Rock.png',
         'images/sound-on.png',
