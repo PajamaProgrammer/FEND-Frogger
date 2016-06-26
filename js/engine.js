@@ -140,6 +140,21 @@ var Engine = (function(global) {
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
+
+        //Draw the sound bar - used to mute and unmute sounds in game
+        drawSoundBar();
+
+        //If there is an active menu, draw it and return
+        for (var menu in menus)
+        {
+            if (menus[menu].active)
+            {
+                menus[menu].action();
+                return;
+            }
+        }
+
+
         var rowImages = [
                 'images/water-block.png',   // Top row is water
                 'images/stone-block.png',   // Row 1 of 3 of stone
@@ -173,7 +188,6 @@ var Engine = (function(global) {
         drawScore();
         drawLevel();
         drawLives();
-        drawSound();
         //drawTimer();
 
 
@@ -232,7 +246,8 @@ var Engine = (function(global) {
         'images/Star.png',
         'images/Rock.png',
         'images/sound-on.png',
-        'images/sound-off.png'
+        'images/sound-off.png',
+        'images/Green Road Sign_Tansparent.png'
     ]);
     Resources.onReady(init);
 

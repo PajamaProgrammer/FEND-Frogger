@@ -5,6 +5,7 @@
 //Global Variables - General
 var soundOn = true;     //Mutes Sound effects if set to false
 var newLife = false;    //toggle when player is awarded an extra life
+//TODO Add newLife Functinality to the gameState and get rid of global variable...
 var highScore = 0;
 
 //Entities
@@ -18,6 +19,15 @@ var canvasHeight = 606;
 var ROW = [-25, 60, 145, 230, 315, 400];
 var COL = [0, 100, 200, 300, 400];
 
+//All possible sprites
+var sprites = [
+    'images/char-boy.png',
+    'images/char-cat-girl.png',
+    'images/char-horn-girl.png',
+    'images/char-pink-girl.png',
+    'images/char-princess-girl.png'
+];
+
 // Track the game state.
 var gameState = {
     lives: 3,
@@ -29,7 +39,8 @@ var gameState = {
     numCollectables: 3,
     numRocks: 0,
     newRockLevel: 5,
-    maxTime: 300,
+    maxTime: 301,
+    playerSprite: sprites[0],
     original: {
       lives: 3,
       level: 1,
@@ -62,15 +73,16 @@ var animation = {
     }
 }
 
+//All possible collectibles
 var collect = {
     orange : 'images/Gem Orange.png',
     green : 'images/Gem Green.png',
     blue : 'images/Gem Blue.png',
     key : 'images/Key.png',
     heart : 'images/Heart.png'
-}
+};
 
-// Audio Sounds for Game
+// Audio Sounds for Game - all sounds were found on http://www.freesound.org/
 var sounds = {
     bounce : {
         audio: new Audio('sounds/341708__projectsu012__bouncing-3.wav')
@@ -95,18 +107,51 @@ var sounds = {
     },
     timeup : {
         audio: new Audio('sounds/157218__adamweeden__video-game-die-or-lose-life.wav')
+    },
+    startmenu : {
+        audio: new Audio('sounds/275673__foolboymedia__c64-melody.wav')
+    },
+    click : {
+        audio: new Audio('sounds/342200__christopherderp__videogame-menu-button-click.wav')
     }
 };
 
 /*
 --------------------- Function ---------------------
-Plays the chosen sound
+Plays the chosen sound - option is an optional parameter used to further control how the sound is played
 */
-function playSound(sound) {
-    if (soundOn === false)  //abort if player has muted sounds
-        return;
+function playSound(sound, option) {
+
     sound = sounds[sound];          //set the sound
-    sound.audio.currentTime = 0.05; //be kind, rewind
+
+    //loop option will set the settings to loop the sound over and over...
+    if (option === 'loop')
+    {
+        if (typeof sound.audio.loop == 'boolean')
+            sound.audio.loop = true;
+        else
+        {
+            //if loop isn't an option, then an event listener will be added to force a replay of the sound
+            sound.audio.addEventListener('ended', function() {
+            this.currentTime = 0.00;
+            this.play();
+            }, false);
+        }
+    }
+
+    if (option === 'mute' || soundOn === false) //abort if player has muted sounds
+    {
+        sound.audio.pause();
+        return;
+    }
+
+    if (option === 'resume')
+    {
+        sound.audio.play();
+        return;
+    }
+    //Default action is to play the sound requested from the beginning
+    sound.audio.currentTime = 0.00; //be kind, rewind
     sound.audio.volume = 0.05;      //set volume
     sound.audio.play();             //play
 }
@@ -396,7 +441,7 @@ var Player = function() {
     this.lives = gameState.original.lives;
     this.level = gameState.original.level;
     this.reset();
-    this.sprite = 'images/char-boy.png';
+    this.sprite = gameState.playerSprite;
 };
 
 //Reset in this context will move player back to starting position
@@ -654,6 +699,8 @@ Player.prototype.handleBounce = function() {
 //Draw the player - the player scales up or down depending on animation settings
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x + (50 - 50*this.scale), this.y + (85 - 85*this.scale), 101*this.scale, 171*this.scale);
+    ctx.drawImage(Resources.get('images/Green Road Sign_Tansparent.png'), COL[2]-34, 440, 175, 175);
+
 };
 
 //Keyboard input is used to determing player movements
@@ -827,7 +874,7 @@ function drawLives() {
 //Draws the sound icon to indicate whether sounds are muted or not - sounds can be muted by clicking the icon
 var leftSideBar = document.getElementById("left");      //grab left side bar
 
-function drawSound() {
+function drawSoundBar() {
     leftSideBarCtx.clearRect(0, 0, leftSideBar.width, leftSideBar.height);
     if (soundOn)
         leftSideBarCtx.drawImage(Resources.get('images/sound-on.png'), 3, 3, 45, 45);
@@ -841,19 +888,30 @@ leftSideBar.addEventListener('click',function(loc) {
     var y = loc.clientY;
 
     //Toggle sound if player clicks the icon
-    if (y > 10 && y < 55)
+    if (y > 15 && y < 50 && x > 90 && x < 135)
     {
         if (soundOn===true)
         {
             soundOn=false;
-            drawSound();
+            menus.sound = 'mute';     //toggle end/start menu sound
+            drawSoundBar();
         }
         else if (soundOn===false)
         {
             soundOn=true;
-            drawSound();
+            menus.sound = 'resume';       //toggle end/start menu sound
+            drawSoundBar();
         }
     }
+});
+
+leftSideBar.addEventListener('mousemove',function(loc) {
+    var x = loc.clientX;
+    var y = loc.clientY;
+    document.body.style.cursor = "default";
+    //Change cursor if mouse is over icon
+    if (y > 15 && y < 50 && x > 90 && x < 135)
+        document.body.style.cursor = "pointer";
 });
 
 
