@@ -4,8 +4,6 @@
 
 //Global Variables - General
 var soundOn = true;     //Mutes Sound effects if set to false
-var newLife = false;    //toggle when player is awarded an extra life
-//TODO Add newLife Functinality to the gameState and get rid of global variable...
 
 //Entities
 var player, allEnemies, allRocks, allCollectibles, gameTimer;
@@ -38,8 +36,10 @@ var gameState = {
     numCollectables: 3,
     numRocks: 0,
     newRockLevel: 5,
+    newLifeScore: 5000,
+    newLifeLevel: 25,
     maxTime: 301,
-    highScore: false,
+    highScore: false,       //General Settings that span entire session
     highScoreRecord: {
         scores: [],
         levels: []
@@ -55,6 +55,8 @@ var gameState = {
       numCollectables: 3,
       numRocks: 0,
       newRockLevel: 5,
+      newLifeScore: 5000,
+      newLifeLevel: 25,
       maxTime: 301,
     }
 };
@@ -502,36 +504,46 @@ Player.prototype.reset = function() {
 
 //Update player movements
 Player.prototype.update = function(dt) {
-    //ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    //Reached high score, player recieves a new life
+    if (this.score>=gameState.newLifeScore)
+    {
+        playSound('newlife');
+        console.log("new life");
+        player.lives++;
+        player.score+=250;
+        gameState.newLifeScore += 5000;
+
+        gameState.score = this.score;
+        gameState.lives = this.lives;
+        gameState.level = this.level;
+    }
 
     //Reached the water, Level up
     if (this.y < -20 && animation.suspend === false)
     {
-
-        playSound('levelup');
-
         animation.suspend = true;       //Suspends other interactions
         animation.win.animate = true;   //set win animation in motion
         animation.win.isUp = true;
 
-        //clear canvas in order to update score/level
-        //ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         this.score += 100;
-        gameState.score = this.score;
         this.level += 1;
-        gameState.level = this.level;
 
-        //Very high score or level will award player a new life
-        if ((this.level%25===0 || this.score%5000===0) && newLife === false)
+        //Reached high level, player recieves a new life
+        if (this.level>=gameState.newLifeLevel)
         {
             playSound('newlife');
             console.log("new life");
-            newLife = true;
-            this.lives++;
-            gameState.lives = this.lives;
+            player.lives++;
+            player.score+=250;
+            gameState.newLifeLevel += 25;
         }
-        else if (newLife === true)
-            newLife = false;
+        else
+            playSound('levelup');
+
+        gameState.score = this.score;
+        gameState.lives = this.lives;
+        gameState.level = this.level;
 
         //Each new level will update the difficulty just a little bit
         updateLevel();
@@ -575,7 +587,6 @@ Player.prototype.update = function(dt) {
 
     if (animation.win.animate === true)
     {
-        //ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
         if (animation.win.isUp === true)
         {
@@ -644,12 +655,12 @@ Player.prototype.handleCollectible = function(type) {
             break;
         case 'heart':
             playSound('newlife');
-            this.score += 200;
+            this.score += 500;
             this.lives++;
             break;
         case 'key':
             playSound('levelup');
-            this.score += 200;
+            this.score += 500;
             this.level++;
             animation.suspend = true;       //Suspends other interactions
             animation.win.animate = true;   //set win animation in motion
@@ -670,14 +681,17 @@ Player.prototype.handleBounce = function() {
     animation.bounce.isUp = true;
     playSound('bounce');
 
-    var dir;
+    //var dir;
 
     //Will determine the direction that the player will bounce off the rock
+    //Originally coded with some randomness, but the random direction has been commented out
+    //since it might be confusing to players...
     switch (this.dir)
     {
         case "up": //approached rock while going up
             this.row++;
             this.y = ROW[this.row];
+            /*
             dir = Math.floor(Math.random()*3);
             if (dir === 1 && this.col < 4) // 1/3 chance to also bounce right
             {
@@ -689,12 +703,12 @@ Player.prototype.handleBounce = function() {
                 this.col--;
                 this.x = COL[this.col];
             }
-
+            */
             break;
-
         case "left":
             this.col++;
             this.x = COL[this.col];
+            /*
             dir = Math.floor(Math.random()*3);
             if (dir === 1) //bounce up
             {
@@ -706,12 +720,12 @@ Player.prototype.handleBounce = function() {
                 this.row++;
                 this.y = ROW[this.row];
             }
-
+            */
             break;
-
         case "right":
             this.col--;
             this.x = COL[this.col];
+            /*
             dir = Math.floor(Math.random()*3);
             if (dir === 1) //bounce up
             {
@@ -723,11 +737,12 @@ Player.prototype.handleBounce = function() {
                 this.row++;
                 this.y = ROW[this.row];
             }
+            */
             break;
-
         case "down":
             this.row--;
             this.y = ROW[this.row];
+            /*
             dir = Math.floor(Math.random()*3);
             if (dir === 1 && this.col < 4) //bounce right
             {
@@ -739,6 +754,7 @@ Player.prototype.handleBounce = function() {
                 this.col--;
                 this.x = COL[this.col];
             }
+            */
             break;
     }
 };
