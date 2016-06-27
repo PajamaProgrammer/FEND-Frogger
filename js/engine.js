@@ -141,7 +141,12 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
 
+        mathBoats.forEach(function(boat) {
+            boat.update(dt);
+        });
+
         gameTimer.update();
+        mathSign.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -227,8 +232,13 @@ var Engine = (function(global) {
             rock.render();
         });
 
+        mathBoats.forEach(function(boat) {
+            boat.render();
+        });
+
         player.render();
         gameTimer.render();
+        mathSign.render();
     }
 
     /* This function does nothing but it could have been a good place to

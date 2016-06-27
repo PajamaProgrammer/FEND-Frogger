@@ -6,7 +6,7 @@
 var soundOn = true;     //Mutes Sound effects if set to false
 
 //Entities
-var player, allEnemies, allRocks, allCollectibles, gameTimer;
+var player, allEnemies, allRocks, allCollectibles, gameTimer, mathSign, mathBoats;
 
 //Canvas Size
 var canvasWidth = 505;
@@ -25,6 +25,11 @@ var sprites = [
     'images/char-princess-girl.png'
 ];
 
+//All possible boats
+var boats = [
+    'images/ship_wood_cc0 (1).png',
+    'images/ship_wood_cc0 (2).png'
+]
 // Track the game state.
 var gameState = {
     lives: 3,
@@ -217,6 +222,9 @@ function newGame () {
     allCollectibles = [new Collectible(), new Collectible(), new Collectible()];
     allEnemies = [new Enemy(), new Enemy(), new Enemy()];
     gameTimer = new Timer();
+    mathBoats = [];
+    mathSign = new mathGenerator();
+
 };
 /*
 --------------------- Function ---------------------
@@ -282,16 +290,132 @@ var gameOver = function() {
     allEnemies.length = 0;
     allRocks.length = 0;
     allCollectibles.length = 0;
+    mathBoats.length = 0;
 
     //Reset GameState
     for (var state in gameState.original)
-    {
         gameState[state] = gameState.original[state];
-    }
 
     //Start the end menu
     menus.end.active = true;
 };
+
+/*
+--------------------- Entity ---------------------
+mathGenerator will create a math equation and spawn 5 math boats.
+At least one math boat will have the right answer and will level up the player.
+Blank math boats will also level up. Wrong math boats will reset player to start position
+*/
+
+var mathGenerator = function() {
+    this.reset();
+}
+
+mathGenerator.prototype.reset = function() {
+    mathBoats.length = 0; //delete all mathBoats.
+
+    for (var i=0; i<5; i++)
+        mathBoats.push(new mathBoat(i, true));
+}
+
+mathGenerator.prototype.update = function() {
+
+}
+
+mathGenerator.prototype.render = function() {
+
+}
+
+/*
+--------------------- Entity ---------------------
+mathBoat is an entity that is either blank, has the right answer, or has the wrong math answer.
+*/
+
+var mathBoat = function(col, state, answer) {
+    this.x=COL[col];
+    this.y=ROW[0] + 70;
+
+    this.state = state;
+    this.answer = answer;
+
+    //Used for animation control
+    this.angle=0;
+    this.scale = 1; //not used
+
+    if (Math.floor(Math.random()*2) === 0)
+    {
+        console.log("boat 0");
+        this.clock = true;      //go clockwise
+        this.cMax = 0.1;        //clockwise max
+        this.aMax = 0.0;      //anticlockwise max
+        this.sprite = boats[0]; //assign boat to sprite
+        this.xTextOffset = 30;
+        this.yTextOffset = 40;
+        this.textRotate = +Math.PI*25/180;
+    }
+    else
+    {
+        console.log("boat 1");
+        this.clock = false;     //go anticlockwise
+        this.cMax = 0.0;        //clockwise max
+        this.aMax = -0.1;      //anticlockwise max
+        this.sprite = boats[1]; //assign boat to sprite
+        this.xTextOffset = 65;
+        this.yTextOffset = 40;
+        this.textRotate = -Math.PI*25/180;
+    }
+
+
+}
+/*
+mathBoat.prototype.reset = function() {
+
+}
+*/
+mathBoat.prototype.update = function(dt) {
+//TODO, add animation
+    if(this.angle > this.cMax)
+        this.clock = false;
+
+    if(this.angle < this.aMax)
+        this.clock = true;
+
+    if (this.clock)
+        this.angle+= dt/25;
+    else
+        this.angle-= dt/25;
+
+    //console.log(this.angle);
+}
+
+mathBoat.prototype.render = function() {
+    ctx.save();
+    ctx.translate(this.x+50, this.y+50);
+    ctx.rotate(Math.PI * this.angle);
+
+    ctx.translate(-this.x-50, -this.y-50);
+    //console.log(Math.PI * this.angle);
+    ctx.drawImage(Resources.get(this.sprite), this.x + (50 - 50*this.scale), this.y + (85 - 85*this.scale), 101, 101);
+
+    if (this.answer != undefined)
+    {
+        //Additional rotation needed for text
+        ctx.translate(this.x+50, this.y+50);
+        ctx.rotate(this.textRotate);
+        ctx.translate(-this.x-50, -this.y-50);
+        ctx.strokeStyle = 'white';
+        ctx.fillStyle = 'black';
+        ctx.font = 'bold 18px Comic Sans MS';
+        ctx.textAlign = 'center';  // start, end, left, right, center
+        ctx.textBaseline = 'middle';  // top, hanging, middle, alphabetic, ideographic, bottom
+
+        ctx.strokeText(this.answer, this.x+this.xTextOffset, this.y+this.yTextOffset);
+        ctx.fillText(this.answer, this.x+this.xTextOffset, this.y+this.yTextOffset);
+    }
+
+    ctx.restore();
+}
+
 /*
 --------------------- Entity ---------------------
 Collectibles may randomly appear as the game progresses
