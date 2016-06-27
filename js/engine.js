@@ -264,7 +264,10 @@ var Engine = (function(global) {
         'images/sound-off.png',
         'images/Green Road Sign_Tansparent.png',
         'images/ship_wood_cc0 (1).png',
-        'images/ship_wood_cc0 (2).png'
+        'images/ship_wood_cc0 (2).png',
+        'images/github-logo_31FB03.png',
+        'images/github-logo_393.png',
+        'images/github-logo_666.png'
     ]);
     Resources.onReady(init);
 

@@ -40,9 +40,9 @@ var menus = {
         },
         git: {
           x: 10,                 // Canvas-relative.
-          y: canvas.height - 30, // Canvas-relative.
-          width: 20,
-          height: 20,
+          y: canvas.height - 35, // Canvas-relative.
+          width: 25,
+          height: 25,
           hovered: false,
           pressed: false,
           action: openGitHub
@@ -64,9 +64,9 @@ var menus = {
         },
         git: {
           x: 10,                 // Canvas-relative.
-          y: canvas.height - 30, // Canvas-relative.
-          width: 20,
-          height: 20,
+          y: canvas.height - 35, // Canvas-relative.
+          width: 25,
+          height: 25,
           hovered: false,
           pressed: false,
           action: openGitHub
@@ -94,7 +94,7 @@ function nextSprite() {
 }
 
 function openGitHub() {
-    console.log("not implemented!");
+    window.open('https://github.com/PajamaProgrammer/FEND-Frogger', '_blank');
 }
 
 function start() {
@@ -220,10 +220,6 @@ function drawStartMenu() {
         playSound('startmenu', menus.sound);
         menus.sound = 'active';
     }
-
-
-    ctx.save();
-    //ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw the background.
     ctx.lineWidth = 2;
@@ -408,7 +404,7 @@ function drawStartMenu() {
     ctx.shadowColor = "rgba(64, 64, 64, 1.0)";
     ctx.drawImage(Resources.get('images/Rock.png'), x, y, w, h);
     ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
-    ctx.fillText('Rocks: obstacles - random bounce', 100, y + h-10);
+    ctx.fillText('Rocks: obstacles - bounce', 100, y + h-10);
     y+= 40;
     ctx.drawImage(Resources.get('images/enemy-bug.png'), x, y, w, h);
     ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
@@ -420,6 +416,34 @@ function drawStartMenu() {
 
     ctx.fillText('Cross the sidewalk while picking up collectibles and avoiding', x, y);
     ctx.fillText('rocks and enemies.', x, y+25);
+
+
+
+    //Draw GitHub icon - http://www.flaticon.com/free-icon/github-logo_25231
+    x = menus.start.buttons.git.x;
+    y = menus.start.buttons.git.y;
+    w = menus.start.buttons.git.width;
+    h = menus.start.buttons.git.height;
+
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.shadowBlur = 2;
+    ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
+
+    if (menus.start.buttons.git.pressed)
+    {
+        ctx.drawImage(Resources.get('images/github-logo_393.png'), x, y, w, h);
+        ctx.fillStyle = '#393';
+        ctx.fillText('GitHub', x + w+5, y+h);
+    }
+    else if (menus.start.buttons.git.hovered)
+    {
+        ctx.drawImage(Resources.get('images/github-logo_31FB03.png'), x, y, w, h);
+        ctx.fillStyle = '#31FB03';
+        ctx.fillText('GitHub', x + w+5, y+h);
+    }
+    else
+        ctx.drawImage(Resources.get('images/github-logo_666.png'), x, y, w, h);
 
     ctx.shadowColor = "rgba(0, 0, 0, 0)";
 }
