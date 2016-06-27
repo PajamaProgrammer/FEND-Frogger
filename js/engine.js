@@ -262,7 +262,9 @@ var Engine = (function(global) {
         'images/Rock.png',
         'images/sound-on.png',
         'images/sound-off.png',
-        'images/Green Road Sign_Tansparent.png'
+        'images/Green Road Sign_Tansparent.png',
+        'images/ship_wood_cc0 (1).png',
+        'images/ship_wood_cc0 (2).png'
     ]);
     Resources.onReady(init);
 
