@@ -197,8 +197,35 @@ function drawEndMenu() {
     ctx.textAlign = 'center';  // start, end, left, right, center
     ctx.textBaseline = 'middle';  // top, hanging, middle, alphabetic, ideographic, bottom
     ctx.fillText('Continue', x + w/2, y + h/2);
-    //menus.start.active = true;
-    //menus.end.active = false;
+
+    //Draw GitHub icon - http://www.flaticon.com/free-icon/github-logo_25231
+    x = menus.end.buttons.git.x;
+    y = menus.end.buttons.git.y;
+    w = menus.end.buttons.git.width;
+    h = menus.end.buttons.git.height;
+
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.shadowBlur = 2;
+    ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
+    ctx.font = '18px serif';
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'bottom';
+
+    if (menus.end.buttons.git.pressed)
+    {
+        ctx.drawImage(Resources.get('images/github-logo_393.png'), x, y, w, h);
+        ctx.fillStyle = '#393';
+        ctx.fillText('GitHub', x + w+5, y+h);
+    }
+    else if (menus.end.buttons.git.hovered)
+    {
+        ctx.drawImage(Resources.get('images/github-logo_31FB03.png'), x, y, w, h);
+        ctx.fillStyle = '#31FB03';
+        ctx.fillText('GitHub', x + w+5, y+h);
+    }
+    else
+        ctx.drawImage(Resources.get('images/github-logo_666.png'), x, y, w, h);
 }
 
 //Used to control sprite animation on menu
@@ -429,6 +456,9 @@ function drawStartMenu() {
     ctx.shadowOffsetY = 2;
     ctx.shadowBlur = 2;
     ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
+    ctx.font = '18px serif';
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'bottom';
 
     if (menus.start.buttons.git.pressed)
     {
