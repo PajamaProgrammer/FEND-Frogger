@@ -8,7 +8,7 @@ var newLife = false;    //toggle when player is awarded an extra life
 //TODO Add newLife Functinality to the gameState and get rid of global variable...
 
 //Entities
-var player, allEnemies, allRocks, allCollectibles;
+var player, allEnemies, allRocks, allCollectibles, gameTimer;
 
 //Canvas Size
 var canvasWidth = 505;
@@ -39,8 +39,12 @@ var gameState = {
     numRocks: 0,
     newRockLevel: 5,
     maxTime: 301,
+    highScore: false,
+    highScoreRecord: {
+        scores: [],
+        levels: []
+    },
     playerSprite: sprites[0],
-    highScore: 0,
     original: {
       lives: 3,
       level: 1,
@@ -51,7 +55,7 @@ var gameState = {
       numCollectables: 3,
       numRocks: 0,
       newRockLevel: 5,
-      maxTime: 300
+      maxTime: 301,
     }
 };
 
@@ -210,38 +214,81 @@ function newGame () {
     allRocks = [];
     allCollectibles = [new Collectible(), new Collectible(), new Collectible()];
     allEnemies = [new Enemy(), new Enemy(), new Enemy()];
+    gameTimer = new Timer();
 };
+/*
+--------------------- Function ---------------------
+Updates the High Score Record (shows only highest 10 scores)
+*/
+function updateHighScore() {
+
+    gameState.highScore = false;
+
+    //First Game is always a High Score
+    if (gameState.highScoreRecord.scores.length === 0)
+    {
+        gameState.highScore = 1;
+        gameState.highScoreRecord.scores.push(gameState.score);
+        gameState.highScoreRecord.levels.push(gameState.level);
+        return;
+    }
+
+    //Insert new high score
+    for (var i = 0; i<gameState.highScoreRecord.scores.length; i++)
+    {
+        console.log(gameState.highScoreRecord.scores[i]);
+        if (gameState.score >= gameState.highScoreRecord.scores[i])
+        {
+            gameState.highScore = i+1;
+            gameState.highScoreRecord.scores.splice(i, 0, gameState.score);
+            gameState.highScoreRecord.levels.splice(i, 0, gameState.level);
+
+            console.log(gameState.highScoreRecord.scores);
+
+            if (gameState.highScoreRecord.scores.length > 10)
+            {
+                gameState.highScoreRecord.scores.pop();
+                gameState.highScoreRecord.levels.pop();
+                console.log(gameState.highScoreRecord.scores);
+            }
+            return;
+        }
+    }
+
+    //if less than ten high scores, append to the end.
+    if (gameState.highScoreRecord.scores.length < 10)
+    {
+        gameState.highScoreRecord.scores.splice(9, 0, gameState.score);
+        gameState.highScoreRecord.levels.splice(9, 0, gameState.level);
+        gameState.highScore = gameState.highScoreRecord.scores.length;
+        console.log(gameState.highScoreRecord.scores);
+        return;
+    }
+}
 
 /*
 --------------------- Function ---------------------
-Game Over - records the high score and resets the gameState
+Game Over - resets the gameState
 */
-
 var gameOver = function() {
+
+    gameState.gameCount++;
     playSound('gameover');
-    //TODO: Show High Score...
-    if (gameState.score > gameState.highScore)
-    {
-        gameState.highScore = gameState.score;
-        console.log("New High Score: ", gameState.highScore);
-    }
+    updateHighScore();
+
     //delete all Enemies and Rocks
     allEnemies.length = 0;
     allRocks.length = 0;
     allCollectibles.length = 0;
 
-    gameState.lives = gameState.original.lives;
-    gameState.level = gameState.original.level;
-    gameState.score = gameState.original.score;
-    gameState.numEnemies = gameState.original.numEnemies;
-    gameState.newEnemyLevel = gameState.original.newEnemyLevel;
-    gameState.enemySpeed = gameState.original.enemySpeed;
-    gameState.numCollectables = gameState.original.numCollectables;
-    gameState.numRocks = gameState.original.numRocks;
-    gameState.newRockLevel = gameState.original.newRockLevel;
-    gameState.maxTime = gameState.original.maxTime;
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    newGame();
+    //Reset GameState
+    for (var state in gameState.original)
+    {
+        gameState[state] = gameState.original[state];
+    }
+
+    //Start the end menu
+    menus.end.active = true;
 };
 /*
 --------------------- Entity ---------------------
@@ -782,6 +829,7 @@ Timer.prototype.update = function() {
     }
     if (this.maxTime < 0)
     {
+        console.log("times up");
         player.handleTimesUp();
         this.reset();
     }
@@ -807,9 +855,6 @@ Timer.prototype.toString = function() {
 
     return time;
 }
-
-//Timer.prototype.constructor
-var gameTimer = new Timer();
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -885,12 +930,15 @@ function drawSoundBar() {
 }
 
 //Add mouse click listener to left side bar
-leftSideBar.addEventListener('click',function(loc) {
-    var x = loc.clientX;
-    var y = loc.clientY;
+leftSideBar.addEventListener('click',function(e) {
+    var rect = leftSideBar.getBoundingClientRect();
+
+    //Mouse position reletive to side bar
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
 
     //Toggle sound if player clicks the icon
-    if (y > 15 && y < 50 && x > 90 && x < 135)
+    if (y > 3 && y < 47 && x > 3 && x < 47)
     {
         if (soundOn===true)
         {
@@ -907,12 +955,15 @@ leftSideBar.addEventListener('click',function(loc) {
     }
 });
 
-leftSideBar.addEventListener('mousemove',function(loc) {
-    var x = loc.clientX;
-    var y = loc.clientY;
+leftSideBar.addEventListener('mousemove',function(e) {
+    var rect = leftSideBar.getBoundingClientRect();
+    //Mouse position reletive to left side bar
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
+
     document.body.style.cursor = "default";
     //Change cursor if mouse is over icon
-    if (y > 15 && y < 50 && x > 90 && x < 135)
+    if (y > 3 && y < 47 && x > 3 && x < 47)
         document.body.style.cursor = "pointer";
 });
 

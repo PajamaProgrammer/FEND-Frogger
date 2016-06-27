@@ -51,25 +51,40 @@ var Engine = (function(global) {
      * and handles properly calling the update and render methods.
      */
     function main() {
-        /* Get our time delta information which is required if your game
-         * requires smooth animation. Because everyone's computer processes
-         * instructions at different speeds we need a constant value that
-         * would be the same for everyone (regardless of how fast their
-         * computer is) - hurray time!
-         */
-        var now = Date.now(),
-            dt = (now - lastTime) / 1000.0;
-        /* Call our update/render functions, pass along the time delta to
-         * our update function since it may be used for smooth animation.
-         */
-        update(dt);
-        render();
 
-        /* Set our lastTime variable which is used to determine the time delta
-         * for the next time this function is called.
-         */
-        lastTime = now;
+        drawSoundBar();
+        var activeMenu = false;
+        //If there is an active menu, draw it and set flag
+        for (var menu in menus)
+        {
+            if (menus[menu].active)
+            {
+                menus[menu].action();
+                activeMenu = true;
+            }
+        }
 
+        if(!activeMenu)
+        {
+            /* Get our time delta information which is required if your game
+             * requires smooth animation. Because everyone's computer processes
+             * instructions at different speeds we need a constant value that
+             * would be the same for everyone (regardless of how fast their
+             * computer is) - hurray time!
+             */
+            var now = Date.now(),
+                dt = (now - lastTime) / 1000.0;
+            /* Call our update/render functions, pass along the time delta to
+             * our update function since it may be used for smooth animation.
+             */
+            update(dt);
+            render();
+
+            /* Set our lastTime variable which is used to determine the time delta
+             * for the next time this function is called.
+             */
+            lastTime = now;
+        }
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
          */
@@ -82,7 +97,6 @@ var Engine = (function(global) {
      */
     function init() {
         reset();
-        newGame();
         lastTime = Date.now();
         main();
     }
@@ -98,12 +112,12 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        checkCollisions();
+        //checkCollisions();
     }
 
-    function checkCollisions() {
+    //function checkCollisions() {
 
-    }
+    //}
 
     /* This is called by the update function and loops through all of the
      * objects within your allEnemies array as defined in app.js and calls
@@ -142,8 +156,9 @@ var Engine = (function(global) {
          */
 
         //Draw the sound bar - used to mute and unmute sounds in game
-        drawSoundBar();
+        //drawSoundBar();
 
+        /*
         //If there is an active menu, draw it and return
         for (var menu in menus)
         {
@@ -153,7 +168,7 @@ var Engine = (function(global) {
                 return;
             }
         }
-
+        */
 
         var rowImages = [
                 'images/water-block.png',   // Top row is water
