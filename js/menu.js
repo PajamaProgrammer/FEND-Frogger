@@ -13,7 +13,7 @@ var menus = {
       buttons: {
         left: {
           x: (canvas.width - 2) / 2 - 70,  // Canvas-relative.
-          y: 225,                          // Canvas-relative.
+          y: 205,                          // Canvas-relative.
           width: 70,
           height: 30,
           hovered: false,
@@ -22,7 +22,7 @@ var menus = {
         },
         right: {
           x: (canvas.width - 2) / 2 + 5,  // Canvas-relative.
-          y: 225,                         // Canvas-relative.
+          y: 205,                         // Canvas-relative.
           width: 70,
           height: 30,
           hovered: false,
@@ -30,13 +30,31 @@ var menus = {
           action: nextSprite
         },
         play: {
-          x: (canvas.width - 2) / 2 - 70,  // Canvas-relative.
+          x: (canvas.width - 2) / 2 - 75,  // Canvas-relative.
           y: canvas.height - 80,          // Canvas-relative.
-          width: 140,
+          width: 150,
           height: 40,
           hovered: false,
           pressed: false,
           action: start
+        },
+        next: {
+          x: (canvas.width - 2) / 2 + 80,  // Canvas-relative.
+          y: canvas.height - 80,          // Canvas-relative.
+          width: 40,
+          height: 40,
+          hovered: false,
+          pressed: false,
+          action: nextMode
+        },
+        prev: {
+          x: (canvas.width - 2) / 2 - 120,  // Canvas-relative.
+          y: canvas.height - 80,          // Canvas-relative.
+          width: 40,
+          height: 40,
+          hovered: false,
+          pressed: false,
+          action: prevMode
         },
         git: {
           x: 10,                 // Canvas-relative.
@@ -54,9 +72,9 @@ var menus = {
       action: drawEndMenu,
       buttons: {
         continue: {
-          x: (canvas.width - 2) / 2 - 70,  // Canvas-relative.
+          x: (canvas.width - 2) / 2 - 75,  // Canvas-relative.
           y: canvas.height - 80,           // Canvas-relative.
-          width: 140,
+          width: 150,
           height: 40,
           hovered: false,
           pressed: false,
@@ -74,6 +92,45 @@ var menus = {
       }
     }
 };
+
+//var operators = ['+', '-', '*', '/'];
+function nextMode() {
+
+    if(mathSettings.mode === 'normal')
+    {
+        mathSettings.mode = operators[0];
+        return;
+    }
+
+    var i = operators.indexOf(mathSettings.mode);
+
+    if(++i >= operators.length)
+    {
+        mathSettings.mode = 'normal'
+        return;
+    }
+
+    mathSettings.mode = operators[i];
+}
+
+function prevMode() {
+
+    if(mathSettings.mode === 'normal')
+    {
+        mathSettings.mode = operators[operators.length-1];
+        return;
+    }
+
+    var i = operators.indexOf(mathSettings.mode);
+
+    if(--i < 0)
+    {
+        mathSettings.mode = 'normal'
+        return;
+    }
+
+    mathSettings.mode = operators[i];
+}
 
 function prevSprite() {
     var i = sprites.indexOf(gameState.playerSprite);
@@ -277,7 +334,7 @@ function drawStartMenu() {
 
     // Draw a preview of the player sprite. (size 101 x 171)
     ctx.shadowColor = "rgba(0, 0, 0, 0)";
-    ctx.drawImage(Resources.get(gameState.playerSprite), (canvas.width - 2) / 2 - 50, 75 - scale*25 , 101, 171);
+    ctx.drawImage(Resources.get(gameState.playerSprite), (canvas.width - 2) / 2 - 50, 65 - scale*25 , 101, 171);
 
     //Controls animation of sprite, gives is a bouncy motion
     if (up === true)
@@ -296,7 +353,7 @@ function drawStartMenu() {
     var w = menus.start.buttons.left.width;
     var h = menus.start.buttons.left.height;
 
-    //Draw Next/Prev Buttons
+    //Draw left/right Buttons
     //Handle Left Button pressed/hovered states
     if (menus.start.buttons.left.pressed)
         ctx.strokeStyle = '#393';
@@ -305,7 +362,7 @@ function drawStartMenu() {
     else
         ctx.strokeStyle = '#666';
 
-    //Draw Prev Button
+    //Draw left Button
     ctx.fillStyle = '#C0C0C0';
     ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
     ctx.fillRect(x, y, w, h);
@@ -335,7 +392,7 @@ function drawStartMenu() {
     w = menus.start.buttons.right.width;
     h = menus.start.buttons.right.height;
 
-    //Draw next
+    //Draw right
     ctx.fillStyle = '#C0C0C0';
     ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
     ctx.fillRect(x, y, w, h);
@@ -380,7 +437,26 @@ function drawStartMenu() {
     ctx.font = '25px serif';
     ctx.textAlign = 'center';  // start, end, left, right, center
     ctx.textBaseline = 'middle';  // top, hanging, middle, alphabetic, ideographic, bottom
-    ctx.fillText('Play', x + w/2, y + h/2);
+
+    switch(mathSettings.mode)
+    {
+        case '+':
+            ctx.fillText('Addition', x + w/2, y + h/2);
+        break;
+        case '-':
+            ctx.fillText('Subtraction', x + w/2, y + h/2);
+        break;
+        case '*':
+            ctx.fillText('Multiplication', x + w/2, y + h/2);
+        break;
+        case '/':
+            ctx.fillText('Division', x + w/2, y + h/2);
+        break;
+        default:
+            ctx.fillText('Play', x + w/2, y + h/2);
+    }
+
+
 
 
     //Draw Game instructions
@@ -389,14 +465,14 @@ function drawStartMenu() {
     ctx.textAlign = 'start';  // start, end, left, right, center
     ctx.textBaseline = 'bottom';  // top, hanging, middle, alphabetic, ideographic, bottom
 
-    y = canvas.height - 350;
+    y = canvas.height - 360;
     x = 10;
     w = 20;
     h = 34;
 
 
     ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
-    ctx.fillText('Gems: common - extra points', 100, y+h);
+    ctx.fillText('Gems: common collectibles worth extra points', 100, y+h);
 
     for (var item in collect)
     {
@@ -406,7 +482,7 @@ function drawStartMenu() {
             y+= 30;
 
             ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
-            ctx.fillText('Keys: rare - level up', 100, y + h-3);
+            ctx.fillText('Keys: rare, automatic level up', 100, y + h-3);
         }
         else if (item === 'heart')
         {
@@ -414,7 +490,7 @@ function drawStartMenu() {
             y+= 30;
 
             ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
-            ctx.fillText('Hearts: rare - extra life', 100, y + h-3);
+            ctx.fillText('Hearts: rare, automatic extra life', 100, y + h-3);
         }
         else
             x+= 10;
@@ -431,19 +507,91 @@ function drawStartMenu() {
     ctx.shadowColor = "rgba(64, 64, 64, 1.0)";
     ctx.drawImage(Resources.get('images/Rock.png'), x, y, w, h);
     ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
-    ctx.fillText('Rocks: obstacles - bounce', 100, y + h-10);
+    ctx.fillText('Rocks: obstacles that block the way', 100, y + h-10);
     y+= 40;
+    ctx.shadowColor = "rgba(64, 64, 64, 1.0)";
     ctx.drawImage(Resources.get('images/enemy-bug.png'), x, y, w, h);
     ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
-    ctx.fillText('Bugs: enemies - death', 100, y + h-15);
+    ctx.fillText('Bugs: enemies, careful! they bring certain death', 100, y + h-15);
 
 
-    y = canvas.height - 145;
-    x = 25;
+    y = canvas.height - 165;
+    x = canvas.width/2;
+    ctx.textAlign = 'center';
 
-    ctx.fillText('Cross the sidewalk while picking up collectibles and avoiding', x, y);
-    ctx.fillText('rocks and enemies.', x, y+25);
+    ctx.fillText('In a world overrun by bugs, the only escape to safety is by boat. ', x, y);
+    ctx.fillText('Look to the wooden sign.', x, y+25);
+    ctx.fillText('Then choose your escape boat wisely.', x, y+50);
 
+    ctx.shadowColor = "rgba(64, 64, 64, 1.0)";
+    x = canvas.width-25;
+    w = 66;
+    h = 66;
+    ctx.drawImage(Resources.get('images/sign-post-576727_640.png'), 25, y, 87, 55);
+    ctx.drawImage(Resources.get('images/ship_wood_cc0 (1).png'), x-w, y, w, h);
+
+
+    //draw next/prev button
+    //Handle next Button pressed/hovered states
+    if (menus.start.buttons.next.pressed)
+        ctx.strokeStyle = '#393';
+    else if (menus.start.buttons.next.hovered)
+        ctx.strokeStyle = '#31FB03';
+    else
+        ctx.strokeStyle = '#666';
+
+    //Updated x, y, w, h variables
+    x = menus.start.buttons.next.x;
+    y = menus.start.buttons.next.y;
+    w = menus.start.buttons.next.width;
+    h = menus.start.buttons.next.height;
+
+    //Draw next
+    ctx.fillStyle = '#C0C0C0';
+    ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+
+    //Draw Arrow
+    ctx.strokeStyle = '#393';
+    ctx.beginPath();
+    ctx.moveTo(x + w/5, y + h/2);  // Base of arrow.
+    ctx.lineTo(x + 4*w/5, y + h/2);  // Tip of arrow.
+    ctx.lineTo(x + 3*w/5, y + h/2 - 5);  // Top angle of arrow.
+    ctx.moveTo(x + 4*w/5, y + h/2);  // Tip of arrow.
+    ctx.lineTo(x + 3*w/5, y + h/2 + 5);  // Bottom angle of arrow.
+    ctx.stroke();
+
+    //draw next/prev button
+    //Handle prev Button pressed/hovered states
+    if (menus.start.buttons.prev.pressed)
+        ctx.strokeStyle = '#393';
+    else if (menus.start.buttons.prev.hovered)
+        ctx.strokeStyle = '#31FB03';
+    else
+        ctx.strokeStyle = '#666';
+
+    //Updated x, y, w, h variables
+    x = menus.start.buttons.prev.x;
+    y = menus.start.buttons.prev.y;
+    w = menus.start.buttons.prev.width;
+    h = menus.start.buttons.prev.height;
+
+    //Draw next
+    ctx.fillStyle = '#C0C0C0';
+    ctx.shadowColor = "rgba(51, 153, 51, 0.5)";
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+
+    //Draw Arrow
+    ctx.strokeStyle = '#393';
+    ctx.beginPath();
+    ctx.moveTo(x + 4*w/5, y + h/2);  // Base of arrow.
+    ctx.lineTo(x + w/5, y + h/2);  // Tip of arrow.
+    ctx.lineTo(x + 2*w/5, y + h/2 - 5);  // Top angle of arrow.
+    ctx.moveTo(x + w/5, y + h/2);  // Tip of arrow.
+    ctx.lineTo(x + 2*w/5, y + h/2 + 5);  // Bottom angle of arrow.
+    ctx.stroke();
 
 
     //Draw GitHub icon - http://www.flaticon.com/free-icon/github-logo_25231

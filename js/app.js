@@ -88,8 +88,8 @@ var mathSettings = {
             oper2: [0, 2]
         },
         level: 0,
-        nextLevel : 10,
-        incr: 10,
+        nextLevel : 5,
+        incr: 5,
     },
     multiplication: {
         range: {
@@ -97,8 +97,8 @@ var mathSettings = {
             oper2: [0, 2]
         },
         level: 0,
-        nextLevel : 15,
-        incr: 15,
+        nextLevel : 10,
+        incr: 10,
     },
     division: {
         range: {
@@ -106,8 +106,8 @@ var mathSettings = {
             oper2: [1, 2]
         },
         level: 0,
-        nextLevel : 25,
-        incr: 25,
+        nextLevel : 10,
+        incr: 10,
     },
     maxAnswers: 3,
     maxPirates: 3,
@@ -128,17 +128,17 @@ var mathSettings = {
                 oper2: [0, 2]
             },
             level: 0,
-            nextLevel : 10,
-            incr: 10,
+            nextLevel : 5,
+            incr: 5,
         },
         multiplication: {
             range: {
-                oper1: [0, 12],
+                oper1: [0, 10],
                 oper2: [0, 2]
             },
             level: 0,
-            nextLevel : 15,
-            incr: 15,
+            nextLevel : 10,
+            incr: 10,
         },
         division: {
             range: {
@@ -146,8 +146,8 @@ var mathSettings = {
                 oper2: [1, 2]
             },
             level: 0,
-            nextLevel : 25,
-            incr: 25,
+            nextLevel : 10,
+            incr: 10,
         },
         maxAnswers: 3,
         maxPirates: 3
@@ -321,7 +321,6 @@ function newGame () {
     gameTimer = new Timer();
     mathBoats = [];
     mathSign = new mathGenerator();
-
 };
 /*
 --------------------- Function ---------------------
@@ -423,7 +422,10 @@ mathGenerator.prototype.reset = function() {
     if (mathSettings.mode === 'normal')
         this.operator = operators[Math.floor(Math.random()*mathSettings.operatorLevel)];
     else
+    {
+        console.log("Playing in ", mathSettings.mode, "mode");
         this.operator=mathSettings.mode;
+    }
 
     switch (this.operator)
     {
@@ -469,31 +471,32 @@ mathGenerator.prototype.reset = function() {
         //chosse a random state
         switch (Math.floor(Math.random()*4))
         {
-            case 0:
-                console.log(true);
-                if (--numAns < 0)
+            case 0: //True Answer Boat
+                if (--numAns < 0)   //Maximum allowed boats already spawned
                 {
                     i--;
                     break;
                 }
+                console.log("True Boat");
                 mathBoats.push(new mathBoat(i, true, this.answer));
             break;
-            case 1:
-                console.log('HappyPirate');
-                if (--numPir < 0)
+            case 1: //Pirate Boad
+                if (--numPir < 0)   //maximum allowed boats already spawned
                 {
                     i--;
                     break;
                 }
+                console.log('HappyPirate');
                 mathBoats.push(new mathBoat(i, 'HappyPirate')); //Pirates don't need the answer!
             break;
-            default:
-                console.log(false);
+            default: //False Answer Boat
+                console.log("wrong boat");
                 var wrong =  this.answer;
+
+                //false answer must not be negative either
                 while (wrong === this.answer || wrong < 0)
-                {
                     wrong = this.answer + Math.floor(Math.random()*mathSettings[this.type].range.oper1[1]) - Math.floor(Math.random()*mathSettings[this.type].range.oper1[1]);
-                }
+
                 mathBoats.push(new mathBoat(i, false, wrong));
         }
     }
@@ -514,7 +517,11 @@ mathGenerator.prototype.update = function() {
 */
 //Updates MathSettings with each new level
 mathGenerator.prototype.updateLevel = function() {
+
+    //tracks the level per operator type
     mathSettings[this.type].level++;
+
+    //increment operands if new level has been reached
     if(mathSettings[this.type].level == mathSettings[this.type].nextLevel)
     {
         mathSettings[this.type].nextLevel += mathSettings[this.type].incr;
@@ -524,9 +531,10 @@ mathGenerator.prototype.updateLevel = function() {
         console.log(this.type, " range now ", mathSettings[this.type].range.oper1[1], mathSettings[this.type].range.oper2[1]);
     }
 
+    //Every 25 levels, reduce pirate and answer boats
     if (gameState.level%25===0)
     {
-        if (mathSettings.maxAnswers>1)
+        if (mathSettings.maxAnswers>1)  //there must always be at least one answer boat.
             mathSettings.maxAnswers--;
         if (mathSettings.maxPirates>0)
             mathSettings.maxPirates--;
