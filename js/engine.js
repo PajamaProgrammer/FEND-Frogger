@@ -146,7 +146,7 @@ var Engine = (function(global) {
         });
 
         gameTimer.update();
-        mathSign.update();
+        //mathSign.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -272,7 +272,7 @@ var Engine = (function(global) {
         'images/Rock.png',
         'images/sound-on.png',
         'images/sound-off.png',
-        'images/Green Road Sign_Tansparent.png',
+        'images/sign-post-576727_640.png',
         'images/ship_wood_cc0 (1).png',
         'images/ship_wood_cc0 (2).png',
         'images/github-logo_31FB03.png',
