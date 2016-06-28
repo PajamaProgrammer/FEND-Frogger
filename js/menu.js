@@ -456,9 +456,6 @@ function drawStartMenu() {
             ctx.fillText('Play', x + w/2, y + h/2);
     }
 
-
-
-
     //Draw Game instructions
     ctx.fillStyle = 'black';
     ctx.font = '18px serif';
