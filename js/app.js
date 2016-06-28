@@ -66,12 +66,16 @@ var gameState = {
     }
 };
 
+//TODO change oper1/oper2 modes
+var mathModes = ['easy', 'medium', 'hard', 'veryHard'];
+
 //Math oparators...
 var operators = ['+', '-', '*', '/'];
 
 //Track Math Settings
 var mathSettings = {
     mode: 'normal',
+    mathMode: 'easy',
     operatorLevel: 1,
     plus: {
         range: {

@@ -36,7 +36,7 @@ var menus = {
           height: 40,
           hovered: false,
           pressed: false,
-          action: start
+          action: drawSubStartMenu
         },
         next: {
           x: (canvas.width - 2) / 2 + 80,  // Canvas-relative.
@@ -67,6 +67,12 @@ var menus = {
         }
       }
     },
+    startSub: {
+      active: false,
+      action: drawStartMenu,
+      buttons: {    //Will build Dynamicaly
+        }
+      },
     end: {
       active: false,
       action: drawEndMenu,
@@ -96,40 +102,66 @@ var menus = {
 //var operators = ['+', '-', '*', '/'];
 function nextMode() {
 
-    if(mathSettings.mode === 'normal')
+    if(menus.start.active)
     {
-        mathSettings.mode = operators[0];
+        if(mathSettings.mode === 'normal')
+        {
+            mathSettings.mode = operators[0];
+            return;
+        }
+
+        var i = operators.indexOf(mathSettings.mode);
+
+        if(++i >= operators.length)
+        {
+            mathSettings.mode = 'normal'
+            return;
+        }
+
+        mathSettings.mode = operators[i];
         return;
     }
 
-    var i = operators.indexOf(mathSettings.mode);
-
-    if(++i >= operators.length)
+    if(menus.startSub.active)
     {
-        mathSettings.mode = 'normal'
-        return;
+        var i = mathModes.indexOf(mathSettings.mathMode);
+
+        if(++i >= mathModes.length)
+            i=0;
+        mathSettings.mathMode = mathModes[i];
     }
 
-    mathSettings.mode = operators[i];
 }
 
 function prevMode() {
 
-    if(mathSettings.mode === 'normal')
+    if(menus.start.active)
     {
-        mathSettings.mode = operators[operators.length-1];
+        if(mathSettings.mode === 'normal')
+        {
+            mathSettings.mode = operators[operators.length-1];
+            return;
+        }
+
+        var i = operators.indexOf(mathSettings.mode);
+
+        if(--i < 0)
+        {
+            mathSettings.mode = 'normal'
+            return;
+        }
+
+        mathSettings.mode = operators[i];
         return;
     }
-
-    var i = operators.indexOf(mathSettings.mode);
-
-    if(--i < 0)
+    if(menus.startSub.active)
     {
-        mathSettings.mode = 'normal'
-        return;
-    }
+        var i = mathModes.indexOf(mathSettings.mathMode);
 
-    mathSettings.mode = operators[i];
+        if(--i < 0)
+            i=mathModes.length-1;
+        mathSettings.mathMode = mathModes[i];
+    }
 }
 
 function prevSprite() {
@@ -158,7 +190,30 @@ function start() {
     playSound('startmenu', 'mute');
     menus.sound = 'resume';
     menus.start.active = false;
+    menus.startSub.active = false;
     newGame();
+}
+
+function drawSubStartMenu() {
+    //playSound('startmenu', 'mute');
+    //menus.sound = 'resume';
+    menus.start.active = false;
+    menus.startSub.active = true;
+    //newGame();
+
+    console.log(menus.startSub);
+    for (var button in menus.start.buttons)
+    {
+        console.log(button);
+
+        menus.startSub.buttons[button] = menus.start.buttons[button];
+        if (button === 'play')
+        {
+            menus.startSub.buttons[button].action = start;
+        }
+
+    }
+
 }
 
 function restart() {
@@ -438,23 +493,42 @@ function drawStartMenu() {
     ctx.textAlign = 'center';  // start, end, left, right, center
     ctx.textBaseline = 'middle';  // top, hanging, middle, alphabetic, ideographic, bottom
 
-    switch(mathSettings.mode)
-    {
-        case '+':
-            ctx.fillText('Addition', x + w/2, y + h/2);
-        break;
-        case '-':
-            ctx.fillText('Subtraction', x + w/2, y + h/2);
-        break;
-        case '*':
-            ctx.fillText('Multiplication', x + w/2, y + h/2);
-        break;
-        case '/':
-            ctx.fillText('Division', x + w/2, y + h/2);
-        break;
-        default:
-            ctx.fillText('Play', x + w/2, y + h/2);
-    }
+    if (menus.start.active)
+        switch(mathSettings.mode)
+        {
+            case '+':
+                ctx.fillText('Addition', x + w/2, y + h/2);
+            break;
+            case '-':
+                ctx.fillText('Subtraction', x + w/2, y + h/2);
+            break;
+            case '*':
+                ctx.fillText('Multiplication', x + w/2, y + h/2);
+            break;
+            case '/':
+                ctx.fillText('Division', x + w/2, y + h/2);
+            break;
+            default:
+                ctx.fillText('Play', x + w/2, y + h/2);
+        }
+    if (menus.startSub.active)
+        switch(mathSettings.mathMode)
+        {
+            case 'easy':
+                ctx.fillText('Easy', x + w/2, y + h/2);
+            break;
+            case 'medium':
+                ctx.fillText('Medium', x + w/2, y + h/2);
+            break;
+            case 'hard':
+                ctx.fillText('Hard', x + w/2, y + h/2);
+            break;
+            case 'veryHard':
+                ctx.fillText('Very Hard!', x + w/2, y + h/2);
+            break;
+            default:
+                ctx.fillText('Play', x + w/2, y + h/2);
+        }
 
     //Draw Game instructions
     ctx.fillStyle = 'black';
