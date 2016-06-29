@@ -528,7 +528,7 @@ Player.prototype.update = function(dt) {
     //Reached high score, player recieves a new life
     if (this.score >= gameState.newLifeScore) {
         playSound('newlife');
-        console.log("new life");
+        //console.log("new life");
         player.lives++;
         player.score += 250;
         gameState.newLifeScore += 5000;
