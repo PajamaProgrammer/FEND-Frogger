@@ -150,7 +150,7 @@ var Engine = (function(global) {
         });
 
         gameTimer.update();
-        //mathSign.update();
+        //mathSign.update();    //Not implemented
     }
 
     /* This function initially draws the "game level", it will then call
@@ -163,21 +163,6 @@ var Engine = (function(global) {
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
-
-        //Draw the sound bar - used to mute and unmute sounds in game
-        //drawSoundBar();
-
-        /*
-        //If there is an active menu, draw it and return
-        for (var menu in menus)
-        {
-            if (menus[menu].active)
-            {
-                menus[menu].action();
-                return;
-            }
-        }
-        */
 
         var rowImages = [
                 'images/water-block.png',   // Top row is water
