@@ -29,7 +29,7 @@ var sprites = [
 var boats = [
     'images/ship_wood_cc0 (1).png',
     'images/ship_wood_cc0 (2).png'
-]
+];
 // Track the game state.
 var gameState = {
     lives: 3,
@@ -66,7 +66,8 @@ var gameState = {
     }
 };
 
-//TODO change oper1/oper2 modes
+//TODO add mathMode Settings... Menu support for these modes has been implemented
+//But the actual mathModes do not have any effect on the game settings yet
 var mathModes = ['easy', 'medium', 'hard', 'veryHard'];
 
 //Math oparators...
@@ -74,88 +75,99 @@ var operators = ['+', '-', '*', '/'];
 
 //Track Math Settings
 var mathSettings = {
-    mode: 'normal',
-    mathMode: 'easy',
-    operatorLevel: 1,
-    plus: {
-        range: {
-            oper1: [0, 10],
-            oper2: [0, 2]
-        },
-        level: 0,
-        nextLevel : 5,
-        incr: 5,
-    },
-    minus: {
-        range: {
-            oper1: [1, 10],
-            oper2: [0, 2]
-        },
-        level: 0,
-        nextLevel : 5,
-        incr: 5,
-    },
-    multiplication: {
-        range: {
-            oper1: [0, 12],
-            oper2: [0, 2]
-        },
-        level: 0,
-        nextLevel : 10,
-        incr: 10,
-    },
-    division: {
-        range: {
-            oper1: [1, 10],
-            oper2: [1, 2]
-        },
-        level: 0,
-        nextLevel : 10,
-        incr: 10,
-    },
+    mode: 'normal',         //modes are normal, +, -, *, and /
+    mathMode: 'easy',       //easy, medium, hard, very hard
     maxAnswers: 3,
     maxPirates: 3,
+    easy : {},      //Set with setMathSettings ()
+    medium : {},
+    hard : {},
+    veryHard : {},
     original : {
-        operatorLevel: 1,
-        plus: {
-            range: {
-                oper1: [0, 10],
-                oper2: [0, 2]
-            },
-            level: 0,
-            nextLevel : 5,
-            incr: 5,
-        },
-        minus: {
-            range: {
-                oper1: [1, 10],
-                oper2: [0, 2]
-            },
-            level: 0,
-            nextLevel : 5,
-            incr: 5,
-        },
-        multiplication: {
-            range: {
-                oper1: [0, 10],
-                oper2: [0, 2]
-            },
-            level: 0,
-            nextLevel : 10,
-            incr: 10,
-        },
-        division: {
-            range: {
-                oper1: [1, 10],
-                oper2: [1, 2]
-            },
-            level: 0,
-            nextLevel : 10,
-            incr: 10,
-        },
         maxAnswers: 3,
-        maxPirates: 3
+        maxPirates: 3,
+        easy : {
+            operatorLevel: 1,   //number of operators allowed (1: +, 2: + & -, 3: + - *, 4: all)
+            plus: {
+                oper1: [0, 10], oper2: [0, 2], level: 0, nextLevel : 5, incr: 5
+            },
+            minus: {
+                oper1: [1, 10], oper2: [0, 2], level: 0, nextLevel : 5, incr: 5
+            },
+            multiplication: {
+                oper1: [0, 12], oper2: [0, 2], level: 0, nextLevel : 10, incr: 10
+            },
+            division: {
+                oper1: [1, 10],  oper2: [1, 2], level: 0, nextLevel : 10, incr: 10
+            }
+        },
+        medium : {
+            operatorLevel: 2,
+            plus: {
+                oper1: [0, 25], oper2: [0, 25], level: 0, nextLevel : 3, incr: 3
+            },
+            minus: {
+                oper1: [1, 25], oper2: [0, 25], level: 0, nextLevel : 3, incr: 3
+            },
+            multiplication: {
+                oper1: [0, 12], oper2: [0, 6], level: 0, nextLevel : 8, incr: 7
+            },
+            division: {
+                oper1: [1, 12],  oper2: [1, 6], level: 0, nextLevel : 8, incr: 7
+            }
+        },
+        hard : {
+            operatorLevel: 4,
+            plus: {
+                oper1: [0, 100], oper2: [0, 100], level: 0, nextLevel : 2, incr: 2
+            },
+            minus: {
+                oper1: [1, 100], oper2: [0, 100], level: 0, nextLevel : 2, incr: 2
+            },
+            multiplication: {
+                oper1: [0, 12], oper2: [0, 12], level: 0, nextLevel : 5, incr: 5
+            },
+            division: {
+                oper1: [1, 12],  oper2: [1, 12], level: 0, nextLevel : 5, incr: 5
+            }
+        },
+        veryHard : {
+            operatorLevel: 4,
+            plus: {
+                oper1: [0, 1000], oper2: [0, 1000], level: 0, nextLevel : 1, incr: 1
+            },
+            minus: {
+                oper1: [1, 1000], oper2: [0, 1000], level: 0, nextLevel : 2, incr: 2
+            },
+            multiplication: {
+                oper1: [0, 20], oper2: [0, 20], level: 0, nextLevel : 2, incr: 2
+            },
+            division: {
+                oper1: [1, 15],  oper2: [1, 15], level: 0, nextLevel : 3, incr: 3
+            }
+        }
     }
+};
+
+function setMathSettings () {
+    mathSettings.maxAnswers = mathSettings.original.maxAnswers;
+    mathSettings.maxPirates = mathSettings.original.maxPirates;
+
+    //set to math setting object (easy, medium, hard...)
+    var newSetting = mathSettings[mathSettings.mathMode];
+    //console.log(newSetting);
+    var oldSetting = mathSettings.original[mathSettings.mathMode];
+    //console.log(oldSetting);
+    var oper = ['plus', 'minus', 'multiplication', 'division'];
+    //build object
+    newSetting.operatorLevel = oldSetting.operatorLevel;
+    for (var i=0; i<4; i++)
+    {
+        console.log(newSetting[oper[i]]);
+        newSetting[oper[i]] = Object.create(oldSetting[oper[i]]);
+    }
+
+    console.log(newSetting);
 }
 
 //Controls Animations
@@ -174,7 +186,7 @@ var animation = {
         isUp : false,
         isDown : false
     }
-}
+};
 
 //All possible collectibles
 var collect = {
@@ -318,6 +330,9 @@ var updateLevel = function() {
 Generates a new game with default number of spawns for each entity
 */
 function newGame () {
+
+    setMathSettings ();
+
     player = new Player();
     allRocks = [];
     allCollectibles = [new Collectible(), new Collectible(), new Collectible()];
@@ -325,7 +340,7 @@ function newGame () {
     gameTimer = new Timer();
     mathBoats = [];
     mathSign = new mathGenerator();
-};
+}
 /*
 --------------------- Function ---------------------
 Updates the High Score Record (shows only highest 10 scores)
@@ -397,8 +412,8 @@ var gameOver = function() {
         gameState[state] = gameState.original[state];
 
     //Reset math settings
-    for (var setting in mathSettings.original)
-        mathSettings[setting] = mathSettings.original[setting];
+    //for (var setting in mathSettings.original)
+    //    mathSettings[setting] = mathSettings.original[setting];
 
     //Start the end menu
     menus.end.active = true;
@@ -418,48 +433,52 @@ var mathGenerator = function() {
     this.w = 174;
     this.h = 110;
     this.reset();
-}
+};
 
 mathGenerator.prototype.reset = function() {
     mathBoats.length = 0; //delete all mathBoats.
 
+    var math = mathSettings[mathSettings.mathMode];
+
+    console.log(mathSettings.mathMode, math);
+    console.log("Playing in ", mathSettings.mode, "mode");
+
     if (mathSettings.mode === 'normal')
-        this.operator = operators[Math.floor(Math.random()*mathSettings.operatorLevel)];
+        this.operator = operators[Math.floor(Math.random()*math.operatorLevel)];
     else
-    {
-        console.log("Playing in ", mathSettings.mode, "mode");
         this.operator=mathSettings.mode;
-    }
 
     switch (this.operator)
     {
         case '+':
-            this.oper1 = Math.floor(Math.random()*mathSettings.plus.range.oper1[1]) + mathSettings.plus.range.oper1[0];
-            this.oper2 = Math.floor(Math.random()*mathSettings.plus.range.oper2[1]) + mathSettings.plus.range.oper2[0];
+            this.oper1 = Math.floor(Math.random()*math.plus.oper1[1]) + math.plus.oper1[0];
+            this.oper2 = Math.floor(Math.random()*math.plus.oper2[1]) + math.plus.oper2[0];
             this.answer = this.oper1 + this.oper2;
             this.type = 'plus';
         break;
         case '-':
             do
             {
-                this.oper1 = Math.floor(Math.random()*mathSettings.minus.range.oper1[1]) + mathSettings.minus.range.oper1[0];
-                this.oper2 = Math.floor(Math.random()*mathSettings.minus.range.oper2[1]) + mathSettings.minus.range.oper2[0];
+                this.oper1 = Math.floor(Math.random()*math.minus.oper1[1]) + math.minus.oper1[0];
+                this.oper2 = Math.floor(Math.random()*math.minus.oper2[1]) + math.minus.oper2[0];
                 this.answer = this.oper1 - this.oper2;
                 this.type = 'minus';
             } while(this.answer < 0);   //negative answers not allowed
         break;
         case '*':
-            this.oper1 = Math.floor(Math.random()*mathSettings.multiplication.range.oper1[1]) + mathSettings.multiplication.range.oper1[0];
-            this.oper2 = Math.floor(Math.random()*mathSettings.multiplication.range.oper2[1]) + mathSettings.multiplication.range.oper2[0];
+            this.oper1 = Math.floor(Math.random()*math.multiplication.oper1[1]) + math.multiplication.oper1[0];
+            this.oper2 = Math.floor(Math.random()*math.multiplication.oper2[1]) + math.multiplication.oper2[0];
             this.answer = this.oper1 * this.oper2;
             this.type = 'multiplication';
         break;
         case '/':
-            //It is easier to calculate the answer, and then assign the operands
-            this.oper2 = Math.floor(Math.random()*mathSettings.division.range.oper2[1]) + mathSettings.division.range.oper2[0];
+            //Randomly choose the divisor
+            this.oper2 = Math.floor(Math.random()*math.division.oper2[1]) + math.division.oper2[0];
             console.log(this.oper2);
-            this.oper1 = this.oper2*(Math.floor(Math.random()*mathSettings.division.range.oper1[1]) + mathSettings.division.range.oper1[0]);
+            //Randomly choose the dividend
+            this.oper1 = this.oper2*(Math.floor(Math.random()*math.division.oper1[1]) + math.division.oper1[0]);
             console.log(this.oper1);
+            //Calculate the answer
             this.answer = this.oper1 / this.oper2;
             this.type = 'division';
         break;
@@ -499,7 +518,7 @@ mathGenerator.prototype.reset = function() {
 
                 //false answer must not be negative either
                 while (wrong === this.answer || wrong < 0)
-                    wrong = this.answer + Math.floor(Math.random()*mathSettings[this.type].range.oper1[1]) - Math.floor(Math.random()*mathSettings[this.type].range.oper1[1]);
+                    wrong = this.answer + Math.floor(Math.random()*math[this.type].oper1[1]) - Math.floor(Math.random()*math[this.type].oper1[1]);
 
                 mathBoats.push(new mathBoat(i, false, wrong));
         }
@@ -508,11 +527,11 @@ mathGenerator.prototype.reset = function() {
     //Check to ensure at least one boat has a right answer
     if (numAns === mathSettings.maxAnswers)
     {
-        console.log("change to happy")
+        console.log("change to true");
         var i = Math.floor(Math.random()*5);
         mathBoats[i] = new mathBoat(i, true, this.answer);
     }
-}
+};
 
 /*
 mathGenerator.prototype.update = function() {
@@ -522,17 +541,20 @@ mathGenerator.prototype.update = function() {
 //Updates MathSettings with each new level
 mathGenerator.prototype.updateLevel = function() {
 
+    var math = mathSettings[mathSettings.mathMode];
+
     //tracks the level per operator type
-    mathSettings[this.type].level++;
+    math[this.type].level++;
+    console.log(this.type, "level = ", math[this.type].level);
 
     //increment operands if new level has been reached
-    if(mathSettings[this.type].level == mathSettings[this.type].nextLevel)
+    if(math[this.type].level == math[this.type].nextLevel)
     {
-        mathSettings[this.type].nextLevel += mathSettings[this.type].incr;
-        mathSettings[this.type].range.oper1[1]++;
-        mathSettings[this.type].range.oper2[1]++;
+        math[this.type].nextLevel += math[this.type].incr;
+        math[this.type].oper1[1]++;
+        math[this.type].oper2[1]++;
 
-        console.log(this.type, " range now ", mathSettings[this.type].range.oper1[1], mathSettings[this.type].range.oper2[1]);
+        console.log(this.type, " range now ", math[this.type].oper1[1], math[this.type].oper2[1]);
     }
 
     //Every 25 levels, reduce pirate and answer boats
@@ -543,13 +565,13 @@ mathGenerator.prototype.updateLevel = function() {
         if (mathSettings.maxPirates>0)
             mathSettings.maxPirates--;
 
-        if (mathSettings.operatorLevel < 4 && mathSettings.mode === 'normal')
+        if (math.operatorLevel < 4 && mathSettings.mode === 'normal')
         {
-            mathSettings.operatorLevel++;
-            console.log("add operator number ", mathSettings.operatorLevel);
+            math.operatorLevel++;
+            console.log("add operator number ", math.operatorLevel);
         }
     }
-}
+};
 
 mathGenerator.prototype.render = function() {
     ctx.drawImage(Resources.get('images/sign-post-576727_640.png'), this.x, this.y, this.w, this.h);
@@ -562,7 +584,7 @@ mathGenerator.prototype.render = function() {
 
     ctx.strokeText(this.formula, this.x+this.w/2, this.y+this.h/3);
     ctx.fillText(this.formula, this.x+this.w/2, this.y+this.h/3);
-}
+};
 
 /*
 --------------------- Entity ---------------------
@@ -602,7 +624,7 @@ var mathBoat = function(col, state, answer) {
         this.yTextOffset = 30;
         this.textRotate = -Math.PI*25/180;
     }
-}
+};
 /*
 mathBoat.prototype.reset = function() {
 
@@ -625,7 +647,7 @@ mathBoat.prototype.update = function(dt) {
     //Player has landed on boat
     if (player.y < -20 && player.x === this.x && animation.suspend === false)
         player.handleBoat(this.state); //pass to player state of boat - true/false/happy pirate
-}
+};
 
 mathBoat.prototype.render = function() {
     ctx.save();
@@ -643,7 +665,7 @@ mathBoat.prototype.render = function() {
     ctx.textAlign = 'center';  // start, end, left, right, center
     ctx.textBaseline = 'middle';  // top, hanging, middle, alphabetic, ideographic, bottom
 
-    if (this.answer != undefined && this.state != 'HappyPirate')
+    if (this.answer !== undefined && this.state != 'HappyPirate')
     {
         //Additional rotation needed for text
         ctx.translate(this.x+50, this.y+50);
@@ -665,7 +687,7 @@ mathBoat.prototype.render = function() {
     }
 
     ctx.restore();
-}
+};
 
 /*
 --------------------- Entity ---------------------
@@ -673,14 +695,14 @@ Collectibles may randomly appear as the game progresses
 */
 var Collectible = function() {
     this.reset();
-}
+};
 Collectible.prototype.reset = function() {
     this.appear = true;
     this.tick = 0;
     this.dir = 'left';
 
     this.y = ROW[Math.floor(Math.random()*3) + 1];
-    this.x = COL[Math.floor(Math.random()*5)]
+    this.x = COL[Math.floor(Math.random()*5)];
 
     var gem = Math.floor(Math.random()*125);
 
@@ -691,12 +713,12 @@ Collectible.prototype.reset = function() {
     }
     else if (gem === 92)
     {
-        this.sprite = collect['heart']
+        this.sprite = collect['heart'];
         this.type = 'heart';
     }
     else if (gem === 91)
     {
-        this.sprite = collect['key']
+        this.sprite = collect['key'];
         this.type = 'key';
     }
     else if (gem <= 30)
@@ -716,14 +738,14 @@ Collectible.prototype.reset = function() {
     }
 
     //console.log(gem, this.sprite, this.x, this.y, this.appear);
-}
+};
 
 Collectible.prototype.render = function() {
     if (this.appear)
     {
-        ctx.drawImage(Resources.get(this.sprite), this.x + (65 - 50*.25), this.y + (115 - 85*.25), 25, 43);
+        ctx.drawImage(Resources.get(this.sprite), this.x + (65 - 50*0.25), this.y + (115 - 85*0.25), 25, 43);
     }
-}
+};
 
 Collectible.prototype.update = function(dt) {
 
@@ -782,7 +804,7 @@ Rocks are obstacles that the player must move around. Even after they are spawne
 var Rock = function() {
     this.sprite = 'images/Rock.png';
     this.reset();
-}
+};
 
 //Reset a Rock, reset in this context will assign a new location and determine if the rock appears to player
 Rock.prototype.reset = function() {
@@ -805,7 +827,7 @@ Rock.prototype.update = function(dt) {
     {
         player.handleBounce();
     }
-}
+};
 
 /*
 --------------------- Entity ---------------------
@@ -1001,7 +1023,7 @@ Player.prototype.handleTimesUp = function() {
     }
     else
         gameOver();
-}
+};
 
 //Player has crashed into an Enemy
 Player.prototype.handleCollision = function() {
@@ -1073,10 +1095,10 @@ Player.prototype.handleBoat = function(boatType) {
     if (boatType === 'HappyPirate')
     {
         console.log("Happy Pirate");
-        this.score += 25;       //Extra pirate booty
+        this.score += Math.floor(Math.random()*201); //pirate booty is random
         playSound('cheer');
     }
-    if (boatType)
+    if (boatType === true)
     {
         this.score += 100;
         playSound('levelup');
@@ -1098,7 +1120,7 @@ Player.prototype.handleBoat = function(boatType) {
 
     //Each new level will update the difficulty just a little bit
     updateLevel();
-}
+};
 
 //Player has bounced off a rock
 Player.prototype.handleBounce = function() {
@@ -1251,7 +1273,7 @@ Timer.prototype.reset = function() {
     this.sec = Math.floor(this.maxTime%60);
     this.color = 'black';
     //console.log(this.min, this.sec, this.now);
-}
+};
 
 Timer.prototype.update = function() {
 
@@ -1273,7 +1295,7 @@ Timer.prototype.update = function() {
         player.handleTimesUp();
         this.reset();
     }
-}
+};
 
 Timer.prototype.render = function() {
     ctx.save();
@@ -1283,7 +1305,7 @@ Timer.prototype.render = function() {
     ctx.fillStyle = this.color;
     ctx.fillText('Timer ' + this, 2.5, 45);
     ctx.restore();
-}
+};
 
 Timer.prototype.toString = function() {
     var time = this.min + ':';
@@ -1294,7 +1316,7 @@ Timer.prototype.toString = function() {
         time += this.sec;
 
     return time;
-}
+};
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.

@@ -1,6 +1,21 @@
-frontend-nanodegree-arcade-game
-===============================
+FROGGER CLONE: Math Edition
+===========================
 
-Students should use this [rubric](https://review.udacity.com/#!/projects/2696458597/rubric) for self-checking their submission. Make sure the functions you write are **object-oriented** - either class functions (like Player and Enemy) or class prototype functions such as Enemy.prototype.checkCollisions, and that the keyword 'this' is used appropriately within your class and class prototype functions to refer to the object the function is called upon. Also be sure that the **readme.md** file is updated with your instructions on both how to 1. Run and 2. Play your arcade game.
+In a world that has become overrun by killer bugs, your only hope for escape is by boat. Look to the wooden sign and choose your escape boat wisely!
 
-For detailed instructions on how to get started, check out this [guide](https://docs.google.com/document/d/1v01aScPjSWCCWQLIpFqvg3-vXLH2e8_SZQKC8jNO0Dc/pub?embedded=true).
+**[Play Online Here](https://pajamaprogrammer.github.io/FEND-Frogger/)**
+
+### Controls
+- Navigate the playing field using the **arrow keys**
+
+### Instructions
+
+- Look to the wooden sign, printed is a math problem to solve.
+- Navigate the playing field, avoiding the killer bugs and picking up collectibles, to the correct boat.
+- Watch out for rocks! They block the way.
+- Happy Pirate Boats have smiley faces, excape to them for a pirate cheer.
+
+
+#### Aditional Information
+
+This is the third project in Udacity's [Front-End Web Developer Nanodegree](https://www.udacity.com/course/front-end-web-developer-nanodegree--nd001) program. The goal was to create a clone of the classic arcade game Frogger. A set of art graphics and simple game engine were provided. Additional features were encouraged once the basic game requirements were met. Because my mother is a teacher, I added mathmatic challenges for her students to practice :)

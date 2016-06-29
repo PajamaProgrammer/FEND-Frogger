@@ -133,7 +133,7 @@ var Engine = (function(global) {
 
         allCollectibles.forEach(function(collectible) {
             collectible.update(dt);
-        })
+        });
 
         player.update(dt);
 

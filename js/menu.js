@@ -5,8 +5,9 @@ canvas.addEventListener('mousemove', onCanvasMouseMove);
 canvas.addEventListener('mousedown', onCanvasMouseDown);
 canvas.addEventListener('mouseup', onCanvasMouseUp);
 
+//Track the game menus buttons and actions
 var menus = {
-    sound: 'loop',
+    sound: 'loop',  //code to initiate the theme music in loop mode
     start: {
       active: true,
       action: drawStartMenu,
@@ -102,6 +103,7 @@ var menus = {
 //var operators = ['+', '-', '*', '/'];
 function nextMode() {
 
+    //If start menu is active, then scroll through the different game modes - normal, addition only, subtraction only, etc
     if(menus.start.active)
     {
         if(mathSettings.mode === 'normal')
@@ -114,7 +116,7 @@ function nextMode() {
 
         if(++i >= operators.length)
         {
-            mathSettings.mode = 'normal'
+            mathSettings.mode = 'normal';
             return;
         }
 
@@ -122,6 +124,7 @@ function nextMode() {
         return;
     }
 
+    //If start sub menu is active, then scroll through the difficulty settings
     if(menus.startSub.active)
     {
         var i = mathModes.indexOf(mathSettings.mathMode);
@@ -135,6 +138,7 @@ function nextMode() {
 
 function prevMode() {
 
+    //If start menu is active, then scroll through the different game modes - normal, addition only, subtraction only, etc
     if(menus.start.active)
     {
         if(mathSettings.mode === 'normal')
@@ -147,13 +151,15 @@ function prevMode() {
 
         if(--i < 0)
         {
-            mathSettings.mode = 'normal'
+            mathSettings.mode = 'normal';
             return;
         }
 
         mathSettings.mode = operators[i];
         return;
     }
+
+    //If start sub menu is active, then scroll through the difficulty settings
     if(menus.startSub.active)
     {
         var i = mathModes.indexOf(mathSettings.mathMode);
@@ -164,6 +170,7 @@ function prevMode() {
     }
 }
 
+//Used for selecting which spite to preview
 function prevSprite() {
     var i = sprites.indexOf(gameState.playerSprite);
 
@@ -173,6 +180,7 @@ function prevSprite() {
     gameState.playerSprite = sprites[i];
 }
 
+//Used for selecting which spite to preview
 function nextSprite() {
     var i = sprites.indexOf(gameState.playerSprite);
 
@@ -182,45 +190,49 @@ function nextSprite() {
     gameState.playerSprite = sprites[i];
 }
 
+//Opens a new webpage to the games gitHub account
 function openGitHub() {
     window.open('https://github.com/PajamaProgrammer/FEND-Frogger', '_blank');
 }
 
+//Initiates a new game
 function start() {
-    playSound('startmenu', 'mute');
-    menus.sound = 'resume';
+    playSound('startmenu', 'mute'); //actually pauses the game theme song
+    menus.sound = 'resume';         //code to resume theme song next time start menu is drawn
     menus.start.active = false;
     menus.startSub.active = false;
+
+    //console.log("start game");
+    //TODO this would be a good play to update the game difficulty settings prior to inititiating a new game
     newGame();
 }
 
+//This menu is actually the same as the start menu, the only difference is with one of the buttons
 function drawSubStartMenu() {
-    //playSound('startmenu', 'mute');
-    //menus.sound = 'resume';
     menus.start.active = false;
     menus.startSub.active = true;
-    //newGame();
 
-    console.log(menus.startSub);
+    //console.log("Draw sub menu");
+
+    //Dynamically build buttons for submenu
+    //buttons are exactly the same as start, just a single difference in the play button action method...
     for (var button in menus.start.buttons)
     {
-        console.log(button);
-
-        menus.startSub.buttons[button] = menus.start.buttons[button];
+        menus.startSub.buttons[button] = Object.create(menus.start.buttons[button]);
         if (button === 'play')
-        {
             menus.startSub.buttons[button].action = start;
-        }
-
     }
 
+    //console.log(menus.start.buttons, menus.startSub.buttons);
 }
 
+//used for restarting a new game, simply sets the start menu as active
 function restart() {
     menus.start.active = true;
     menus.end.active = false;
 }
 
+//Draw High score menu
 function drawEndMenu() {
 
     //console.log("end menu");
@@ -345,6 +357,8 @@ var scale = 1;
 var up = true;
 
 function drawStartMenu() {
+
+    //console.log("start menu");
 
     //Set up menu sound to loop
 
