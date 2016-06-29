@@ -29,14 +29,14 @@ var boats = [
 var mathSettings = {
     mode: 'normal', //modes are normal, +, -, *, and /
     mathMode: 'easy', //easy, medium, hard, very hard
-    maxAnswers: 3,
+    maxAnswers: 2,
     maxPirates: 3,
     easy: {}, //Set with setMathSettings ()
     medium: {},
     hard: {},
     veryHard: {},
     original: {
-        maxAnswers: 3,
+        maxAnswers: 2,
         maxPirates: 3,
         easy: {
             operatorLevel: 1, //number of operators allowed (1: +, 2: + & -, 3: + - *, 4: all)
@@ -204,7 +204,7 @@ Wrong math boats will reset player to start position - better choose the right b
 */
 var mathGenerator = function() {
     //Set the location of the mathSign
-    this.x = COL[2] - 34;
+    this.x = COL[0]+15;
     this.y = 465;
     this.w = 174;
     this.h = 110;

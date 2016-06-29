@@ -183,8 +183,8 @@ Updates the games difficulty with each level
 */
 var updateLevel = function() {
     //Limits the number of in game spawns
-    var EnemyCap = 7;
-    var RockCap = 3;
+    var EnemyCap = 8;
+    var RockCap = 3;    //do not increase! Game starts with 1, and 5 can block player from moving
 
     //Reached a high level, spawn new enemy
     if (gameState.level === gameState.newEnemyLevel && gameState.numEnemies < EnemyCap) {
@@ -237,7 +237,7 @@ function newGame() {
 
     //Spawn players, rocks, collectibles, etc
     player = new Player();
-    allRocks = []; //Game begins with no rocks
+    allRocks = [new Rock()]; //Game begins with one rock
     allCollectibles = [new Collectible(), new Collectible(), new Collectible()]; //game begins with three collectibles
     allEnemies = [new Enemy(), new Enemy(), new Enemy()]; //game begins with three killer bugs
     gameTimer = new Timer(); //start the timer
@@ -261,6 +261,7 @@ function updateHighScore() {
 
     var mode = mathSettings.mathMode.capitalize() + " ( " + mathSettings.mode.capitalize() + " )";
 
+    /*
     //First Game is always a High Score
     if (gameState.highScoreRecord.scores.length === 0) {
         gameState.highScore = 1;
@@ -269,23 +270,24 @@ function updateHighScore() {
         gameState.highScoreRecord.modes.push(mode);
         return;
     }
+    */
 
     //Insert new high score
     for (var i = 0; i < gameState.highScoreRecord.scores.length; i++) {
-        console.log(gameState.highScoreRecord.scores[i]);
+        //console.log(gameState.highScoreRecord.scores[i]);
         if (gameState.score >= gameState.highScoreRecord.scores[i]) {
             gameState.highScore = i + 1;
             gameState.highScoreRecord.scores.splice(i, 0, gameState.score);
             gameState.highScoreRecord.levels.splice(i, 0, gameState.level);
             gameState.highScoreRecord.modes.splice(i, 0, mode);
 
-            console.log(gameState.highScoreRecord.scores);
+            //console.log(gameState.highScoreRecord.scores);
 
             if (gameState.highScoreRecord.scores.length > 10) {
                 gameState.highScoreRecord.scores.pop();
                 gameState.highScoreRecord.levels.pop();
                 gameState.highScoreRecord.modes.pop();
-                console.log(gameState.highScoreRecord.scores);
+                //console.log(gameState.highScoreRecord.scores);
             }
             return;
         }
@@ -297,7 +299,7 @@ function updateHighScore() {
         gameState.highScoreRecord.levels.splice(9, 0, gameState.level);
         gameState.highScoreRecord.modes.splice(9, 0, mode);
         gameState.highScore = gameState.highScoreRecord.scores.length;
-        console.log(gameState.highScoreRecord.scores);
+        //console.log(gameState.highScoreRecord.scores);
         return;
     }
 }
@@ -339,30 +341,30 @@ Collectible.prototype.reset = function() {
     this.dir = 'left';
 
     //Assign a random location
-    this.y = ROW[Math.floor(Math.random() * 3) + 1];
+    this.y = ROW[Math.floor(Math.random() * 4) + 1];
     this.x = COL[Math.floor(Math.random() * 5)];
 
     //Random statistic on gem type and whether it actually appears
     var gem = Math.floor(Math.random() * 125);
 
-    if (gem > 92) {
-        this.appear = false;
-        this.type = 'none';
-    } else if (gem === 92) {
-        this.sprite = collect['heart'];
-        this.type = 'heart';
-    } else if (gem === 91) {
-        this.sprite = collect['key'];
-        this.type = 'key';
-    } else if (gem <= 30) {
+    if (gem <= 30) {
         this.sprite = collect['orange'];
         this.type = 'gem';
     } else if (gem <= 60) {
         this.sprite = collect['green'];
         this.type = 'gem';
-    } else {
+    } else if (gem <= 90) {
         this.sprite = collect['blue'];
         this.type = 'gem';
+    } else if (gem === 91) {
+        this.sprite = collect['key'];
+        this.type = 'key';
+    } else if (gem === 92) {
+        this.sprite = collect['heart'];
+        this.type = 'heart';
+    } else {
+        this.appear = false;
+        this.type = 'none';
     }
 
     //console.log(gem, this.sprite, this.x, this.y, this.appear);
@@ -434,7 +436,7 @@ var Rock = function() {
 //Reset a Rock, reset in this context will assign a new location and determine if the rock appears to player
 Rock.prototype.reset = function() {
     this.appear = Math.floor(Math.random() * 2) === 0 ? true : false;
-    this.y = ROW[Math.floor(Math.random() * 2) + 2]; //Can only appear on lower 2 roads
+    this.y = ROW[Math.floor(Math.random() * 3) + 2]; //Can only appear on lower 3 roads
     this.x = COL[Math.floor(Math.random() * 5)];
 };
 
@@ -467,7 +469,7 @@ var Enemy = function() {
 //Reset in this context means to move the enemy back off the screen and assign a new speed and row
 Enemy.prototype.reset = function() {
     this.speed = this.randomSpeed(); //Assign a random speed to the enemy
-    this.y = ROW[Math.floor(Math.random() * 3) + 1]; //Assign a random row to the enemy
+    this.y = ROW[Math.floor(Math.random() * 4) + 1]; //Assign a random row to the enemy
     this.x = -100; //All enemies start off the canvas
 };
 
@@ -515,8 +517,8 @@ var Player = function() {
 
 //Reset in this context will move player back to starting position
 Player.prototype.reset = function() {
-    this.col = 2;
-    this.row = 4;
+    this.col = 3;
+    this.row = 5;
     this.x = COL[this.col];
     this.y = ROW[this.row];
     this.scale = 1;
