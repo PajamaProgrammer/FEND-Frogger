@@ -64,27 +64,31 @@ var Engine = (function(global) {
             }
         }
 
+
+        /* Get our time delta information which is required if your game
+         * requires smooth animation. Because everyone's computer processes
+         * instructions at different speeds we need a constant value that
+         * would be the same for everyone (regardless of how fast their
+         * computer is) - hurray time!
+         */
+        var now = Date.now(),
+            dt = (now - lastTime) / 1000.0;
+
+
         if(!activeMenu)
         {
-            /* Get our time delta information which is required if your game
-             * requires smooth animation. Because everyone's computer processes
-             * instructions at different speeds we need a constant value that
-             * would be the same for everyone (regardless of how fast their
-             * computer is) - hurray time!
-             */
-            var now = Date.now(),
-                dt = (now - lastTime) / 1000.0;
             /* Call our update/render functions, pass along the time delta to
-             * our update function since it may be used for smooth animation.
-             */
+            * our update function since it may be used for smooth animation.
+            */
             update(dt);
             render();
-
-            /* Set our lastTime variable which is used to determine the time delta
-             * for the next time this function is called.
-             */
-            lastTime = now;
         }
+
+        /* Set our lastTime variable which is used to determine the time delta
+         * for the next time this function is called.
+         */
+        lastTime = now;
+
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
          */
@@ -272,10 +276,10 @@ var Engine = (function(global) {
         'images/Rock.png',
         'images/sound-on.png',
         'images/sound-off.png',
-        'images/sign-post-576727_640.png',
-        'images/ship_wood_cc0 (1).png',
-        'images/ship_wood_cc0 (2).png',
-        'images/github-logo_31FB03.png',
+        'images/sign-post-576727_640.png',  //image from https://pixabay.com/en/sign-post-signage-wood-wooden-576727/
+        'images/ship_wood_cc0 (1).png',     //image from http://opengameart.org/content/simple-generic-ship
+        'images/ship_wood_cc0 (2).png',     //image from http://opengameart.org/content/simple-generic-ship
+        'images/github-logo_31FB03.png',    //gitHub images from http://www.flaticon.com/free-icon/github-logo_25231
         'images/github-logo_393.png',
         'images/github-logo_666.png'
     ]);

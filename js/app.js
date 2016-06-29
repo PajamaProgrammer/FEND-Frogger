@@ -1,4 +1,16 @@
 /*
+ * Udacity: Front-End Web Deverloper Program
+ * Author: Pajama Programmer
+ * Date 29-Jun-2016
+ *
+ * Description:
+ * In a world overrun by killer bugs, your only escape is by boat. Look to the wooden sign and choose
+ * your escape wisely! Beat the timer, navigate the playing field, avoid the killer bugs, watch out for
+ * rocks, and pickup collectibles.
+ *
+ * App.js - This file pretty much does it all... Holds most of the logic for handling player/enemy movement in game
+ */
+/*
 --------------------- Global Variables ---------------------
 */
 //Global Variables - General
@@ -24,11 +36,6 @@ var sprites = [
     'images/char-princess-girl.png'
 ];
 
-//All possible boats
-var boats = [
-    'images/ship_wood_cc0 (1).png',
-    'images/ship_wood_cc0 (2).png'
-];
 // Track the game state.
 var gameState = {
     lives: 3,
@@ -46,10 +53,11 @@ var gameState = {
     highScore: false, //General Settings that span entire session
     highScoreRecord: {
         scores: [],
-        levels: []
+        levels: [],
+        modes: []
     },
     playerSprite: sprites[0],
-    original: {
+    original: { //used for resetting the game state
         lives: 3,
         level: 1,
         score: 0,
@@ -201,6 +209,7 @@ var updateLevel = function() {
         allCollectibles.push(new Collectible());
     }
 
+    //Reset All rocks and collectibles
     allRocks.forEach(function(rock) {
         rock.reset();
     });
@@ -209,8 +218,10 @@ var updateLevel = function() {
         Collectible.reset();
     });
 
+    //Reset timer
     gameTimer.reset();
 
+    //Update math settings and then reset
     mathSign.updateLevel();
     mathSign.reset();
 };
@@ -221,16 +232,25 @@ Generates a new game with default number of spawns for each entity
 */
 function newGame() {
 
+    //Set mathSettings to player specified settings
     setMathSettings();
 
+    //Spawn players, rocks, collectibles, etc
     player = new Player();
-    allRocks = [];
-    allCollectibles = [new Collectible(), new Collectible(), new Collectible()];
-    allEnemies = [new Enemy(), new Enemy(), new Enemy()];
-    gameTimer = new Timer();
-    mathBoats = [];
-    mathSign = new mathGenerator();
+    allRocks = []; //Game begins with no rocks
+    allCollectibles = [new Collectible(), new Collectible(), new Collectible()]; //game begins with three collectibles
+    allEnemies = [new Enemy(), new Enemy(), new Enemy()]; //game begins with three killer bugs
+    gameTimer = new Timer(); //start the timer
+    mathBoats = []; //math boats are spawned by mathGenerator()
+    mathSign = new mathGenerator(); //spawn mathGenerator
 }
+
+//http://stackoverflow.com/questions/2332811/capitalize-words-in-string/7592235#7592235
+String.prototype.capitalize = function(lower) {
+    return (lower ? this.toLowerCase() : this).replace(/(?:^|\s)\S/g, function(a) {
+        return a.toUpperCase();
+    });
+};
 /*
 --------------------- Function ---------------------
 Updates the High Score Record (shows only highest 10 scores)
@@ -239,11 +259,14 @@ function updateHighScore() {
 
     gameState.highScore = false;
 
+    var mode = mathSettings.mathMode.capitalize() + " ( " + mathSettings.mode.capitalize() + " )";
+
     //First Game is always a High Score
     if (gameState.highScoreRecord.scores.length === 0) {
         gameState.highScore = 1;
         gameState.highScoreRecord.scores.push(gameState.score);
         gameState.highScoreRecord.levels.push(gameState.level);
+        gameState.highScoreRecord.modes.push(mode);
         return;
     }
 
@@ -254,12 +277,14 @@ function updateHighScore() {
             gameState.highScore = i + 1;
             gameState.highScoreRecord.scores.splice(i, 0, gameState.score);
             gameState.highScoreRecord.levels.splice(i, 0, gameState.level);
+            gameState.highScoreRecord.modes.splice(i, 0, mode);
 
             console.log(gameState.highScoreRecord.scores);
 
             if (gameState.highScoreRecord.scores.length > 10) {
                 gameState.highScoreRecord.scores.pop();
                 gameState.highScoreRecord.levels.pop();
+                gameState.highScoreRecord.modes.pop();
                 console.log(gameState.highScoreRecord.scores);
             }
             return;
@@ -270,6 +295,7 @@ function updateHighScore() {
     if (gameState.highScoreRecord.scores.length < 10) {
         gameState.highScoreRecord.scores.splice(9, 0, gameState.score);
         gameState.highScoreRecord.levels.splice(9, 0, gameState.level);
+        gameState.highScoreRecord.modes.splice(9, 0, mode);
         gameState.highScore = gameState.highScoreRecord.scores.length;
         console.log(gameState.highScoreRecord.scores);
         return;
@@ -282,7 +308,6 @@ Game Over - resets the gameState
 */
 var gameOver = function() {
 
-    gameState.gameCount++;
     playSound('gameover');
     updateHighScore();
 
@@ -296,10 +321,6 @@ var gameOver = function() {
     for (var state in gameState.original)
         gameState[state] = gameState.original[state];
 
-    //Reset math settings
-    //for (var setting in mathSettings.original)
-    //    mathSettings[setting] = mathSettings.original[setting];
-
     //Start the end menu
     menus.end.active = true;
 };
@@ -311,14 +332,17 @@ Collectibles may randomly appear as the game progresses
 var Collectible = function() {
     this.reset();
 };
+
 Collectible.prototype.reset = function() {
     this.appear = true;
     this.tick = 0;
     this.dir = 'left';
 
+    //Assign a random location
     this.y = ROW[Math.floor(Math.random() * 3) + 1];
     this.x = COL[Math.floor(Math.random() * 5)];
 
+    //Random statistic on gem type and whether it actually appears
     var gem = Math.floor(Math.random() * 125);
 
     if (gem > 92) {
@@ -344,14 +368,17 @@ Collectible.prototype.reset = function() {
     //console.log(gem, this.sprite, this.x, this.y, this.appear);
 };
 
+//Draw collectible if it appears
 Collectible.prototype.render = function() {
     if (this.appear) {
         ctx.drawImage(Resources.get(this.sprite), this.x + (65 - 50 * 0.25), this.y + (115 - 85 * 0.25), 25, 43);
     }
 };
 
+//Update controls the gem animation and detects if it has been picked up by player
 Collectible.prototype.update = function(dt) {
 
+    //Picked up by player
     if ((this.x > (player.x - 35)) && (this.x < (player.x + 35)) &&
         (this.y > (player.y - 35)) && (this.y < (player.y + 35)) &&
         this.appear) {
@@ -359,6 +386,7 @@ Collectible.prototype.update = function(dt) {
         player.handleCollectible(this.type);
     }
 
+    //Animation control
     this.tick++;
     switch (this.dir) {
         case 'left':
@@ -394,7 +422,7 @@ Collectible.prototype.update = function(dt) {
 };
 /*
 --------------------- Entity ---------------------
-Rocks are obstacles that the player must move around. Even after they are spawned, they do not always appear.
+Rocks are obstacles that block the way. Even after they are spawned, they do not always appear.
 */
 
 //Spawn a Rock
@@ -427,7 +455,7 @@ Rock.prototype.update = function(dt) {
 
 /*
 --------------------- Entity ---------------------
-Enemies our player must avoid
+Enemies, killer buys our player must avoid
 */
 
 //Spawn an Enemy
@@ -624,9 +652,6 @@ Player.prototype.handleCollision = function() {
 //Player has picked up a collectible
 Player.prototype.handleCollectible = function(type) {
 
-    //clear canvas in order to update score/level
-    //ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
     switch (type) {
         case 'gem':
             playSound('collect');
@@ -672,7 +697,7 @@ Player.prototype.handleBoat = function(boatType) {
     this.level += 1;
 
     if (boatType === 'HappyPirate') {
-        console.log("Happy Pirate");
+        //console.log("Happy Pirate");
         this.score += Math.floor(Math.random() * 201); //pirate booty is random
         playSound('cheer');
     }
@@ -684,7 +709,7 @@ Player.prototype.handleBoat = function(boatType) {
     //Reached high level, player also recieves a new life
     if (this.level >= gameState.newLifeLevel) {
         playSound('newlife');
-        console.log("new life");
+        //console.log("new life");
         player.lives++;
         player.score += 250;
         gameState.newLifeLevel += 25;
@@ -828,14 +853,15 @@ Player.prototype.handleInput = function(key) {
             }
             break;
     }
-    console.log(this.x, this.y);
+    //console.log(this.x, this.y);
 };
 
-
+//Generate Timer
 var Timer = function() {
     this.reset();
 };
 
+//Reset in this context will restart timer at max time allowed
 Timer.prototype.reset = function() {
     this.now = Date.now();
     this.maxTime = gameState.maxTime;
@@ -845,6 +871,7 @@ Timer.prototype.reset = function() {
     //console.log(this.min, this.sec, this.now);
 };
 
+//find out how much time has passed and reduce timer accordingly
 Timer.prototype.update = function() {
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -855,9 +882,12 @@ Timer.prototype.update = function() {
     this.min = Math.floor(this.maxTime / 60);
     this.sec = Math.floor(this.maxTime % 60);
 
+    //Alert player that time is almost up by changing text color
     if (this.maxTime < 60) {
         this.color = 'red';
     }
+
+    //Tell player time is up
     if (this.maxTime < 0) {
         console.log("times up");
         player.handleTimesUp();
@@ -865,6 +895,7 @@ Timer.prototype.update = function() {
     }
 };
 
+//Draw the timer
 Timer.prototype.render = function() {
     ctx.save();
     ctx.font = '20px serif';
@@ -875,6 +906,7 @@ Timer.prototype.render = function() {
     ctx.restore();
 };
 
+//Used for rendering timer
 Timer.prototype.toString = function() {
     var time = this.min + ':';
 
@@ -904,7 +936,7 @@ document.addEventListener('keyup', function(e) {
 --------------------- Canvas - Additional information ---------------------
 */
 /*
-//Draws the timer text on the canvas - top left
+//Draws the timer text on the canvas - top left - converted to its own entity
 function drawTimer() {
     ctx.save();
     ctx.font = '20px serif';

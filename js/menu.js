@@ -271,7 +271,7 @@ function drawEndMenu() {
     if (gameState.highScore > 0)
         ctx.fillText('New High Score!', 50, 150);
     else
-        ctx.fillText('High Scores', 50, 150);
+        ctx.fillText('Your High Scores:', 50, 150);
 
     for (var i = 0; i < gameState.highScoreRecord.scores.length; i++)
     {
@@ -289,7 +289,11 @@ function drawEndMenu() {
 
         text = "- Level " + gameState.highScoreRecord.levels[i];
         ctx.font = '15px serif';
-        ctx.fillText(text, 200, 175 + i*20);
+        ctx.fillText(text, 225, 175 + i*20);
+
+        text = gameState.highScoreRecord.modes[i];
+        ctx.font = '15px serif';
+        ctx.fillText(text, 300, 175 + i*20);
     }
 
     //Continue button.
