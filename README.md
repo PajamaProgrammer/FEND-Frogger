@@ -11,7 +11,7 @@ In a world that has become overrun by killer bugs, your only hope for escape is 
 ### Instructions
 
 - Look to the wooden sign, printed is a math problem to solve.
-- Navigate the playing field, avoiding the killer bugs, to the correct boat.
+- Navigate the playing field, avoiding the killer bugs, to the correct boat before time is up.
 - Pickup collectibles along the way! Gems are worth extra points, hearts an extra life, and keys will automatically level up.
 - Watch out for rocks! They block the way.
 - Happy Pirate Boats have smiley faces, escape to them for a pirate cheer and some pirate points.
