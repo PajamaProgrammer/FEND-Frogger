@@ -43,7 +43,7 @@ var Engine = (function(global) {
     canvas.height = 606;
     doc.body.appendChild(canvas);
 
-    rightSideBar.width = 50;
+    rightSideBar.width = 100;
     rightSideBar.height = canvas.height;
     doc.body.appendChild(rightSideBar);
 
@@ -197,6 +197,7 @@ var Engine = (function(global) {
         drawScore();
         drawLevel();
         drawLives();
+        drawArrowControls();
         //drawTimer();
 
 
@@ -266,7 +267,16 @@ var Engine = (function(global) {
         'images/ship_wood_cc0 (2).png',     //image from http://opengameart.org/content/simple-generic-ship
         'images/github-logo_31FB03.png',    //gitHub images from http://www.flaticon.com/free-icon/github-logo_25231
         'images/github-logo_393.png',
-        'images/github-logo_666.png'
+        'images/github-logo_666.png',
+        'images/round green/arrow-down.png',    //arrow images from http://www.graphicsfuel.com/2010/12/arrow-buttons-psd-pack/
+        'images/round green/arrow-up.png',
+        'images/round green/arrow-left.png',
+        'images/round green/arrow-right.png',
+        'images/round blue/arrow-down.png',    //arrow images from http://www.graphicsfuel.com/2010/12/arrow-buttons-psd-pack/
+        'images/round blue/arrow-up.png',
+        'images/round blue/arrow-left.png',
+        'images/round blue/arrow-right.png'
+
     ]);
     Resources.onReady(init);
 

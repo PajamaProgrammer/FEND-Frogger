@@ -132,6 +132,9 @@ var sounds = {
     click: {
         audio: new Audio('sounds/342200__christopherderp__videogame-menu-button-click.wav')
     },
+    arrow: {
+        audio: new Audio('sounds/166186__drminky__menu-screen-mouse-over.wav')
+    },
     wrong: {
         audio: new Audio('sounds/131657__bertrof__game-sound-wrong.wav')
     },
@@ -184,7 +187,7 @@ Updates the games difficulty with each level
 var updateLevel = function() {
     //Limits the number of in game spawns
     var EnemyCap = 8;
-    var RockCap = 3;    //do not increase! Game starts with 1, and 5 can block player from moving
+    var RockCap = 3; //do not increase! Game starts with 1, and 5 can block player from moving
 
     //Reached a high level, spawn new enemy
     if (gameState.level === gameState.newEnemyLevel && gameState.numEnemies < EnemyCap) {
@@ -817,10 +820,18 @@ Player.prototype.render = function() {
 //Keyboard input is used to determing player movements
 Player.prototype.handleInput = function(key) {
     //console.log(key, this.x, this.y);
+
+    //for (arrow in arrowControls)
+    //{
+    //    arrow = arrowControls[arrow];
+    //    arrow.hovered = false;
+    //}
     var movX = canvasWidth / 5;
     var movY = (canvasHeight - 100) / 6;
 
     playSound('move');
+    arrowControls[key].keyed = true;
+
     switch (key) {
         case "left":
             //console.log("You pressed left");
@@ -855,7 +866,6 @@ Player.prototype.handleInput = function(key) {
             }
             break;
     }
-    //console.log(this.x, this.y);
 };
 
 //Generate Timer
@@ -931,6 +941,7 @@ document.addEventListener('keyup', function(e) {
     };
 
     player.handleInput(allowedKeys[e.keyCode]);
+
 });
 
 
@@ -982,6 +993,130 @@ function drawLives() {
     }
 }
 
+var arrowControls = {
+    left: {
+        x: rightSideBar.width / 2 - 5 - 30 - 5,
+        y: rightSideBar.height - 30 * 3,
+        w: 30,
+        hovered: false,
+        pressed: false,
+        keyed: false,
+        time: 0,
+        code: 'left',
+        images: ['images/round green/arrow-left.png', 'images/round blue/arrow-left.png']
+    },
+    right: {
+        x: rightSideBar.width / 2 - 5 + 5,
+        y: rightSideBar.height - 30 * 3,
+        w: 30,
+        hovered: false,
+        pressed: false,
+        keyed: false,
+        time: 0,
+        code: 'right',
+        images: ['images/round green/arrow-right.png', 'images/round blue/arrow-right.png']
+    },
+    up: {
+        x: rightSideBar.width / 2 - 5 - 30 / 2,
+        y: rightSideBar.height - 30 * 3 - 30 + 5,
+        w: 30,
+        hovered: false,
+        pressed: false,
+        keyed: false,
+        time: 0,
+        code: 'up',
+        images: ['images/round green/arrow-up.png', 'images/round blue/arrow-up.png']
+    },
+    down: {
+        x: rightSideBar.width / 2 - 5 - 30 / 2,
+        y: rightSideBar.height - 30 * 3 + 30 - 5,
+        w: 30,
+        hovered: false,
+        pressed: false,
+        keyed: false,
+        time: 0,
+        code: 'down',
+        images: ['images/round green/arrow-down.png', 'images/round blue/arrow-down.png']
+    }
+};
+
+function drawArrowControls(dt) {
+
+    for (var arrow in arrowControls) {
+        arrow = arrowControls[arrow];
+        if (arrow.hovered)
+            rightSideBarCtx.drawImage(Resources.get(arrow.images[1]), arrow.x, arrow.y, arrow.w, arrow.w);
+        else if (arrow.keyed) {
+            rightSideBarCtx.drawImage(Resources.get(arrow.images[1]), arrow.x, arrow.y, arrow.w, arrow.w);
+
+            if (++arrow.time > 5) {
+                arrow.keyed = false;
+                arrow.time = 0;
+            }
+        } else
+            rightSideBarCtx.drawImage(Resources.get(arrow.images[0]), arrow.x, arrow.y, arrow.w, arrow.w);
+    }
+
+}
+
+//Respond the mouse movements
+rightSideBar.addEventListener('mousemove', function(e) {
+    var rect = rightSideBar.getBoundingClientRect();
+    //console.log(e.clientX, e.clientY);
+    document.body.style.cursor = "default";
+    //Determine if a menu is active
+    for (var arrow in arrowControls) {
+        //If active, iterate through buttons
+
+        arrow = arrowControls[arrow];
+
+        //Mouse position reletive to canvas
+        var mouseX = e.clientX - rect.left;
+        var mouseY = e.clientY - rect.top;
+
+        arrow.hovered = false;
+
+        //Check is mouse is positioned over arrow
+        if ((mouseX > arrow.x) && (mouseX < (arrow.x + arrow.w)) &&
+            (mouseY > arrow.y) && (mouseY < (arrow.y + arrow.w))) {
+            arrow.hovered = true;
+            document.body.style.cursor = "pointer";
+        }
+
+        //if mouse is not hovered over button, then button is not pressed...
+        if (!arrow.hovered)
+            arrow.pressed = false;
+    }
+});
+
+//Respond to mouse down events
+rightSideBar.addEventListener('mousedown', function(e) {
+    //Determine if a menu is active
+    for (var arrow in arrowControls) {
+
+        arrow = arrowControls[arrow];
+
+        arrow.pressed = false;
+
+        if (arrow.hovered)
+            arrow.pressed = true;
+    }
+});
+
+//respond to click events
+rightSideBar.addEventListener('mouseup', function(e) {
+    //Determine if a menu is active
+    for (var arrow in arrowControls) {
+        arrow = arrowControls[arrow];
+
+        if (arrow.hovered && arrow.pressed) {
+            arrow.pressed = false;
+            playSound('arrow');
+            player.handleInput(arrow.code);
+        }
+    }
+});
+
 //Draws the sound icon to indicate whether sounds are muted or not - sounds can be muted by clicking the icon
 var leftSideBar = document.getElementById("left"); //grab left side bar
 
@@ -1026,6 +1161,7 @@ leftSideBar.addEventListener('mousemove', function(e) {
     if (y > 3 && y < 47 && x > 3 && x < 47)
         document.body.style.cursor = "pointer";
 });
+
 
 /*
 document.addEventListener('click',function(loc) {
