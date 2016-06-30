@@ -6,7 +6,7 @@ In a world that has become overrun by killer bugs, your only hope for escape is 
 **[Play Online Here](https://pajamaprogrammer.github.io/FEND-Frogger/)**
 
 ### Controls
-- Navigate the playing field using the **arrow keys**
+- Navigate the playing field using the **arrow keys** on the right side or by using the keyboard **arrow keys**.
 
 ### Instructions
 
